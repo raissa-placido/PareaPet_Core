@@ -50,7 +50,7 @@ class IConexaoDAO(ABC):
         pass
 
 
-class ConexaoBD(IConexaoDAO):
+class ConexaoSQLite(IConexaoDAO):
     """Executa operações SQLite, fechando a conexão após cada operação."""
 
     def __init__(self, caminho_banco: str = "db_solid.sqlite3"):
@@ -126,8 +126,8 @@ class PetDAO(ICrudDAO):
         "fotos, biografia, data_nascimento"
     )
 
-    def __init__(self, conexao_bd=None):
-        self.conexao_bd = conexao_bd if conexao_bd is not None else ConexaoBD()
+    def __init__(self, conexao_bd: IConexaoDAO):
+        self.conexao_bd = conexao_bd
 
     @staticmethod
     def _valor_enum(valor):
@@ -226,8 +226,8 @@ class OngDAO(ICrudDAO):
 
 # conexão Banco de dados
 
-    def __init__(self, conexao_bd=None):
-        self.conexao_bd = conexao_bd if conexao_bd is not None else ConexaoBD()
+    def __init__(self, conexao_bd: IConexaoDAO):
+            self.conexao_bd = conexao_bd
 
     def criar(self, dados):
         if not isinstance(dados, ONG):
@@ -469,8 +469,8 @@ class OngDAO(ICrudDAO):
 
 class AdotanteDAO(ICrudDAO):
 
-    def __init__(self, conexao_bd=None):
-        self.conexao_bd = conexao_bd if conexao_bd is not None else ConexaoBD()
+    def __init__(self, conexao_bd: IConexaoDAO):
+            self.conexao_bd = conexao_bd
 
     def criar(self, dados):
         if not isinstance(dados, Adotante):

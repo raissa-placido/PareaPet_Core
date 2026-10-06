@@ -1,45 +1,38 @@
 from abc import ABC, abstractmethod
 from datetime import date
-import json
 import re
 
 from dao import ICrudDAO
 
 try:
     from .models import Adotante, ONG, Pet
-    from .enum_pareapet import (
-        AlocacaoEnum,
-        ComportamentoEnum,
-        CondicoesEspecEnum,
-        CuidadosEnum,
-        EspecieEnum,
-        FaixaEtariaEnum,
-        MoradiaEnum,
-        PorteEnum,
-        SexoAnimalEnum,
-        SociabilidadeEnum,
-        TipoUsuarioEnum,
-    )
 except ImportError:
     from models import Adotante, ONG, Pet
-    from enum_pareapet import (
-        AlocacaoEnum,
-        ComportamentoEnum,
-        CondicoesEspecEnum,
-        CuidadosEnum,
-        EspecieEnum,
-        FaixaEtariaEnum,
-        MoradiaEnum,
-        PorteEnum,
-        SexoAnimalEnum,
-        SociabilidadeEnum,
-        TipoUsuarioEnum,
-    )
 
-class IRepository(ICrudDAO):
+class IRepository(ABC):
 
     @abstractmethod
     def validar(self) -> bool:
+        pass
+
+    @abstractmethod
+    def criar(self, dados) -> object:
+        pass
+
+    @abstractmethod
+    def buscar_id(self, id) -> object:
+        pass
+
+    @abstractmethod
+    def listar(self) -> list:
+        pass
+
+    @abstractmethod
+    def alterar(self, id, novos_dados) -> object:
+        pass
+
+    @abstractmethod
+    def deletar(self, id) -> bool:
         pass
 
 class PetRepository(IRepository):

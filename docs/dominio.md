@@ -73,7 +73,7 @@ package "DAO" {
         +executar_select(comando, parametros)
     }
 
-    class ConexaoBD {
+    class ConexaoSQLite {
         +caminho_banco: str
         +obter_conexao()
         +executar_comando(comando, parametros)
@@ -115,7 +115,7 @@ package "DAO" {
         +deletar(id: int)
     }
 
-    IConexaoDAO <|.. ConexaoBD
+    IConexaoDAO <|.. ConexaoSQLite
     ICrudDAO <|.. PetDAO
     ICrudDAO <|.. OngDAO
     ICrudDAO <|.. AdotanteDAO
@@ -128,6 +128,11 @@ package "DAO" {
 package "Repository" {
     interface IRepository {
         +validar(entidade)
+        +criar(dados)
+        +buscar_id(id)
+        +listar()
+        +alterar(id, novos_dados)
+        +deletar(id)
     }
 
     class PetRepository {
@@ -160,7 +165,6 @@ package "Repository" {
         +listar(adotante: Adotante)
     }
 
-    ICrudDAO <|-- IRepository
     IRepository <|.. PetRepository
     IRepository <|.. OngRepository
     IRepository <|.. AdotanteRepository
