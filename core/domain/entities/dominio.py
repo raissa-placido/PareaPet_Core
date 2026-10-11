@@ -1,4 +1,4 @@
-﻿from enum_pareapet import (EspecieEnum,
+﻿from enums import (EspecieEnum,
                   FaixaEtariaEnum,
                   SexoAnimalEnum,
                   CuidadosEnum,
@@ -51,7 +51,6 @@ class Pet():
 
 
 
-
 class UsuarioBase():
 
     def __init__(self,
@@ -83,6 +82,7 @@ class UsuarioBase():
         self.telefone = telefone
 
 
+
 class ONG(UsuarioBase):
 
     def __init__(self,
@@ -99,6 +99,7 @@ class ONG(UsuarioBase):
         self.descricao = descricao
         self.pix_para_doacao = pix_para_doacao
         self.pets = []
+
 
 
 class Adotante(UsuarioBase):
