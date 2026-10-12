@@ -1,13 +1,9 @@
 from core.domain.entities.enums import (
     EspecieEnum,
     SexoAnimalEnum,
-    CuidadosEnum,
-    CondicoesEspecEnum,
     PorteEnum,
     MoradiaEnum,
-    SociabilidadeEnum,
     AlocacaoEnum,
-    ComportamentoEnum,
     TipoUsuarioEnum,
 )
 
@@ -18,16 +14,11 @@ class Pet():
                  nome,
                  especie: EspecieEnum,
                  ong: "ONG",
-                 cuidados: CuidadosEnum,
                  sexo: SexoAnimalEnum,
-                 cond_esp: CondicoesEspecEnum,
                  porte: PorteEnum,
                  moradia: MoradiaEnum,
-                 sociabilidade:SociabilidadeEnum,
                  alocacao: AlocacaoEnum,
-                 comportamento: ComportamentoEnum,
                  disponivel = True,
-                 foto = None,
                  biografia = None,
                  data_nascimento = None,
                 ):
@@ -38,14 +29,9 @@ class Pet():
         self.ong = ong
         self.data_nascimento = data_nascimento
         self.sexo = sexo
-        self.cuidados = cuidados
-        self.cond_esp = cond_esp
         self.porte = porte
         self.moradia_recomendada = moradia
-        self.sociabilidade = sociabilidade
-        self.comportamento = comportamento
         self.alocacao = alocacao
-        self.fotos = foto
         self.biografia = biografia
         self.disponivel = disponivel
 
@@ -113,4 +99,3 @@ class Adotante(UsuarioBase):
         super().__init__(tipo_usuario=TipoUsuarioEnum.ADOTANTE, **dados_usuario)
         self.cpf = cpf
         self.data_nascimento = data_nascimento
-        self.pets_solicitados = []
