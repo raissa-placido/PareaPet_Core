@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # adiciona a pasta de aplicacao chamada "app"
     'app',
-    'core', 
+    'core.apps.CoreConfig',
 ]
+
+AUTH_USER_MODEL = 'core.UsuarioBase'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

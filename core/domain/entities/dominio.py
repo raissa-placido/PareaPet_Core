@@ -1,15 +1,15 @@
-﻿from enums import (EspecieEnum,
-                  FaixaEtariaEnum,
-                  SexoAnimalEnum,
-                  CuidadosEnum,
-                  CondicoesEspecEnum,
-                  PorteEnum,
-                  MoradiaEnum,
-                  SociabilidadeEnum,
-                  AlocacaoEnum,
-                  ComportamentoEnum,
-                  TipoUsuarioEnum
-                  )
+from core.domain.entities.enums import (
+    EspecieEnum,
+    SexoAnimalEnum,
+    CuidadosEnum,
+    CondicoesEspecEnum,
+    PorteEnum,
+    MoradiaEnum,
+    SociabilidadeEnum,
+    AlocacaoEnum,
+    ComportamentoEnum,
+    TipoUsuarioEnum,
+)
 
 class Pet():
 
@@ -17,7 +17,7 @@ class Pet():
                  id,
                  nome,
                  especie: EspecieEnum,
-                 faixa_etaria: FaixaEtariaEnum,
+                 ong: "ONG",
                  cuidados: CuidadosEnum,
                  sexo: SexoAnimalEnum,
                  cond_esp: CondicoesEspecEnum,
@@ -35,8 +35,8 @@ class Pet():
         self.id = id
         self.nome = nome
         self.especie = especie
+        self.ong = ong
         self.data_nascimento = data_nascimento
-        self.faixa_etaria = faixa_etaria
         self.sexo = sexo
         self.cuidados = cuidados
         self.cond_esp = cond_esp
