@@ -1,15 +1,11 @@
-﻿from enums import (EspecieEnum,
-                  FaixaEtariaEnum,
-                  SexoAnimalEnum,
-                  CuidadosEnum,
-                  CondicoesEspecEnum,
-                  PorteEnum,
-                  MoradiaEnum,
-                  SociabilidadeEnum,
-                  AlocacaoEnum,
-                  ComportamentoEnum,
-                  TipoUsuarioEnum
-                  )
+from core.domain.entities.enums import (
+    EspecieEnum,
+    SexoAnimalEnum,
+    PorteEnum,
+    MoradiaEnum,
+    AlocacaoEnum,
+    TipoUsuarioEnum,
+)
 
 class Pet():
 
@@ -17,17 +13,12 @@ class Pet():
                  id,
                  nome,
                  especie: EspecieEnum,
-                 faixa_etaria: FaixaEtariaEnum,
-                 cuidados: CuidadosEnum,
+                 ong: "ONG",
                  sexo: SexoAnimalEnum,
-                 cond_esp: CondicoesEspecEnum,
                  porte: PorteEnum,
                  moradia: MoradiaEnum,
-                 sociabilidade:SociabilidadeEnum,
                  alocacao: AlocacaoEnum,
-                 comportamento: ComportamentoEnum,
                  disponivel = True,
-                 foto = None,
                  biografia = None,
                  data_nascimento = None,
                 ):
@@ -35,17 +26,12 @@ class Pet():
         self.id = id
         self.nome = nome
         self.especie = especie
+        self.ong = ong
         self.data_nascimento = data_nascimento
-        self.faixa_etaria = faixa_etaria
         self.sexo = sexo
-        self.cuidados = cuidados
-        self.cond_esp = cond_esp
         self.porte = porte
         self.moradia_recomendada = moradia
-        self.sociabilidade = sociabilidade
-        self.comportamento = comportamento
         self.alocacao = alocacao
-        self.fotos = foto
         self.biografia = biografia
         self.disponivel = disponivel
 
@@ -113,4 +99,3 @@ class Adotante(UsuarioBase):
         super().__init__(tipo_usuario=TipoUsuarioEnum.ADOTANTE, **dados_usuario)
         self.cpf = cpf
         self.data_nascimento = data_nascimento
-        self.pets_solicitados = []

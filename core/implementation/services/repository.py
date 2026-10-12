@@ -1,98 +1,107 @@
-from abc import ABC, abstractmethod
+from datetime import date
 
-from core.domain.entities.dominio import Categoria, Produto
-from core.domain.services.interfaces_dao import ICategoriaDAO, IProdutoDAO
-from core.domain.services.interfaces_repository import ICategoriaService
-
-
-class CategoriaService(ICategoriaService):
-
-    def __init__(self, dao: ICategoriaDAO ): 
-        # define o DAO a ser utilizado pelo serviço
-        self._dao = dao
-
-    def validar(self, obj: Categoria): 
-        # exemplo de regra de negócio: a descrição da categoria é obrigatória
-        if (not obj.descricao) or (obj.descricao.strip() == ''):
-            raise ValueError('A descrição da categoria é obrigatória.')
-
-    def incluir(self, obj: Categoria) -> Categoria: 
-        # valida o objeto de categoria        
-        self.validar(obj)
-        # delega a inclusão da categoria para o DAO
-        obj = self._dao.incluir(obj)
-        return obj
-
-    def alterar(self, obj: Categoria) -> Categoria: 
-        # valida o objeto de categoria        
-        self.validar(obj)
-        # delega a alteração da categoria para o DAO
-        obj = self._dao.alterar(obj)
-        return obj
-
-    def excluir(self, id: int): 
-        # delega a exclusão da categoria para o DAO
-        self._dao.excluir(id)
-
-    def obter_por_id(self, id: int): 
-        # exemplo de regra de negócio: o id da categoria é obrigatório
-        if not id:
-            raise ValueError('O id da categoria deve ser informado.')
-        # delega a obtenção da categoria para o DAO
-        obj = self._dao.obter_por_id(id)
-        return obj
-
-    def listar(self) -> list[Categoria]: 
-        # delega a listagem das categorias para o DAO
-        return self._dao.listar()
+from core.domain.entities.dominio import Adotante, ONG, Pet
+from core.domain.services.interfaces_dao import ICrudDAO
+from core.domain.services.interfaces_repository import IRepository
 
 
-class ProdutoService(ABC):
+class PetRepository(IRepository):
+    def __init__(self, pet_dao: ICrudDAO):
+        self.pet_dao = pet_dao
 
-    def __init__(self, dao: IProdutoDAO ): 
-        # define o DAO a ser utilizado pelo serviço
-        self._dao = dao
+    def validar(self, pet: Pet) -> bool:
+        if not isinstance(pet, Pet):
+            raise TypeError("pet deve ser uma instância de Pet.")
+        if not pet.nome or not pet.nome.strip():
+            raise ValueError("O nome do pet é obrigatório.")
+        if pet.data_nascimento and pet.data_nascimento > date.today():
+            raise ValueError("A data de nascimento do pet não pode estar no futuro.")
+        return True
 
-    def validar(self, obj: Produto): 
-        # a descrição do produto é obrigatória
-        if (not obj.descricao) or (obj.descricao.strip() == ''):
-            raise ValueError('A descrição do produto é obrigatória.')
-        # o preço unitário deve ser maior que zero
-        if (not obj.preco_unitario) or (obj.preco_unitario <= 0):
-            raise ValueError('O preço unitário do produto deve ser maior que zero.')
-        # a quantidade em estoque deve ser zero ou maior que zero
-        if (obj.quantidade_estoque==None) or (obj.quantidade_estoque < 0):
-            raise ValueError('A quantidade em estoque deve ser igual ou maior que zero.')
-        # a categoria deve ser informada e deve ter um id válido
-        if (not obj.categoria) or (obj.categoria.id==None) or (obj.categoria.id < 0):
-            raise ValueError('A categoria do produto deve ser informada.')
+    def criar(self, pet: Pet) -> Pet:
+        self.validar(pet)
+        return self.pet_dao.criar(pet)
 
-    def incluir(self, obj: Produto) -> Produto: 
-        # valida o objeto de produto        
-        self.validar(obj)
-        # delega a inclusão do produto para o DAO
-        obj = self._dao.incluir(obj)
-        return obj
+    def buscar_id(self, id: int) -> Pet | None:
+        return self.pet_dao.buscar_id(id)
 
-    def alterar(self, obj: Produto) -> Produto: 
-        # valida o objeto de produto        
-        self.validar(obj)
-        # delega a alteração do produto para o DAO
-        obj = self._dao.alterar(obj)
-        return obj
+    def listar(self) -> list[Pet]:
+        return self.pet_dao.listar()
 
-    def excluir(self, id: int): 
-        # delega a exclusão do produto para o DAO
-        self._dao.excluir(id)
+    def alterar(self, id: int, pet: Pet) -> Pet | None:
+        self.validar(pet)
+        return self.pet_dao.alterar(id, pet)
 
-    def obter_por_id(self, id: int): 
-        # o id do produto é obrigatório
-        if not id:
-            raise ValueError('O id do produto deve ser informado.')
-        # delega a obtenção do produto para o DAO
-        obj = self._dao.obter_por_id(id)
-        return obj
+    def deletar(self, id: int) -> bool:
+        return self.pet_dao.deletar(id)
 
-    def listar(self) -> list[Produto]: 
-        # delega a listagem dos produtos para o DAO
-        return self._dao.listar()
+
+class OngRepository(IRepository):
+    def __init__(self, ong_dao: ICrudDAO):
+        self.ong_dao = ong_dao
+
+    def validar(self, ong: ONG) -> bool:
+        if not isinstance(ong, ONG):
+            raise TypeError("ong deve ser uma instância de ONG.")
+        if not ong.cnpj or not ong.cnpj.strip():
+            raise ValueError("O CNPJ da ONG é obrigatório.")
+        if not ong.razao_social or not ong.razao_social.strip():
+            raise ValueError("A razão social da ONG é obrigatória.")
+        ong.cnpj = "".join(char for char in ong.cnpj if char.isdigit())
+        return True
+
+    def criar(self, ong: ONG) -> ONG:
+        self.validar(ong)
+        return self.ong_dao.criar(ong)
+
+    def buscar_id(self, id: int) -> ONG | None:
+        return self.ong_dao.buscar_id(id)
+
+    def listar(self) -> list[ONG]:
+        return self.ong_dao.listar()
+
+    def alterar(self, id: int, ong: ONG) -> ONG | None:
+        self.validar(ong)
+        return self.ong_dao.alterar(id, ong)
+
+    def deletar(self, id: int) -> bool:
+        return self.ong_dao.deletar(id)
+
+
+class AdotanteRepository(IRepository):
+    def __init__(self, adotante_dao: ICrudDAO):
+        self.adotante_dao = adotante_dao
+
+    def validar(self, adotante: Adotante) -> bool:
+        if not isinstance(adotante, Adotante):
+            raise TypeError("adotante deve ser uma instância de Adotante.")
+        if adotante.data_nascimento:
+            hoje = date.today()
+            if adotante.data_nascimento > hoje:
+                raise ValueError("A data de nascimento não pode estar no futuro.")
+            idade = hoje.year - adotante.data_nascimento.year - (
+                (hoje.month, hoje.day)
+                < (adotante.data_nascimento.month, adotante.data_nascimento.day)
+            )
+            if idade < 18:
+                raise ValueError("O adotante precisa ter pelo menos 18 anos.")
+        if adotante.cpf:
+            adotante.cpf = "".join(char for char in adotante.cpf if char.isdigit())
+        return True
+
+    def criar(self, adotante: Adotante) -> Adotante:
+        self.validar(adotante)
+        return self.adotante_dao.criar(adotante)
+
+    def buscar_id(self, id: int) -> Adotante | None:
+        return self.adotante_dao.buscar_id(id)
+
+    def listar(self) -> list[Adotante]:
+        return self.adotante_dao.listar()
+
+    def alterar(self, id: int, adotante: Adotante) -> Adotante | None:
+        self.validar(adotante)
+        return self.adotante_dao.alterar(id, adotante)
+
+    def deletar(self, id: int) -> bool:
+        return self.adotante_dao.deletar(id)
