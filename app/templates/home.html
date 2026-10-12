@@ -1,13 +1,17 @@
-{% extends "base.html" %}
-{% block title %}Início | Parêa Pet{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Início | Parêa Pet{% endblock %} {%
+block content %}
 <section class="card">
   <p class="muted">Área de administração</p>
   <h1>Bem-vindo ao Parêa Pet</h1>
-  <p>Gerencie os dados das organizações de proteção animal cadastradas no sistema.</p>
+  <p>
+    Gerencie os dados das organizações de proteção animal cadastradas no
+    sistema.
+  </p>
   <div class="actions">
     <a class="button" href="{% url 'ongs_listar' %}">Ver ONGs</a>
-    <a class="button secondary" href="{% url 'ongs_criar' %}">Cadastrar uma ONG</a>
+    <a class="button secondary" href="{% url 'ongs_criar' %}"
+      >Cadastrar uma ONG</a
+    >
   </div>
 </section>
 {% endblock %}
