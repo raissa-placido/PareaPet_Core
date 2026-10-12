@@ -1,5 +1,5 @@
 """
-WSGI config for proj_solid project.
+WSGI config for pareapet project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj_solid.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pareapet.settings')
 
 application = get_wsgi_application()
