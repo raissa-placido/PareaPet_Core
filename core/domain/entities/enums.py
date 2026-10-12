@@ -9,7 +9,6 @@ class EspecieEnum(Enum):
         self.codigo = codigo
         self.descricao = descricao
 
-
 class FaixaEtariaEnum(Enum):
     ZERO_A_UM = (1, "Até 1 ano")
     DOIS_A_SEIS = (2, "De 2 a 6 anos")
