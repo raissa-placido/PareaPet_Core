@@ -30,9 +30,9 @@ block content %}
           <td>{{ ong.cnpj }}</td>
           <td>{{ ong.email }}</td>
           <td>
-            {% if ong.cidade %}{{ ong.cidade }}{% endif %}{% if ong.estado %}{%
-            if ong.cidade %}, {% endif %}{{ ong.estado.descricao }}{% endif %}{%
-            if not ong.cidade and not ong.estado %}—{% endif %}
+            {% if ong.cidade %} {{ ong.cidade }} {% endif %} {% if ong.estado %}
+            {% if ong.cidade %}, {% endif %} {{ ong.estado.descricao }} {% endif
+            %} {% if not ong.cidade and not ong.estado %}—{% endif %}
           </td>
           <td><a href="{% url 'ongs_editar' ong_id=ong.id %}">Editar</a></td>
         </tr>

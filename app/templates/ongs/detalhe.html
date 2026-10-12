@@ -15,11 +15,11 @@ endblock %} {% block content %}
     <dd>{{ ong.pix_para_doacao|default:"Não informada" }}</dd>
     <dt>Endereço</dt>
     <dd>
-      {% if ong.rua %}{{ ong.rua }}, {{ ong.numero }} — {{ ong.bairro }}{% else
-      %}Não informado{% endif %} {% if ong.cep %}<br />CEP: {{ ong.cep }}{%
-      endif %} {% if ong.cidade or ong.estado %}<br />{{ ong.cidade }}{% if
-      ong.cidade and ong.estado %} - {% endif %}{% if ong.estado %}{{
-      ong.estado.descricao }}{% endif %}{% endif %}
+      {% if ong.rua %} {{ ong.rua }}, {{ ong.numero }} — {{ ong.bairro }} {%
+      else %} Não informado {% endif %} {% if ong.cep %}
+      <br />CEP: {{ ong.cep }} {% endif %} {% if ong.cidade or ong.estado %}
+      <br />{{ ong.cidade }} {% if ong.cidade and ong.estado %} - {% endif %} {%
+      if ong.estado %}{{ ong.estado.descricao }}{% endif %} {% endif %}
     </dd>
     <dt>Telefone</dt>
     <dd>{{ ong.telefone|default:"Não informado" }}</dd>
