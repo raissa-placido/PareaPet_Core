@@ -1,205 +1,135 @@
-import sys
-
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse
+from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.db.models.deletion import ProtectedError
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods, require_POST
 
 from app.factory import ServicosFactory
-from app.forms import CategoriaForm, ProdutoForm
-from core.domain.entities.dominio import Categoria, Produto
+from app.forms import OngForm
+from core.domain.entities.dominio import ONG
+from core.domain.entities.enums import EstadoBrasileiroEnum
 
 
-# Método responsavel por listar, incluir, alterar e excluir as Categorias.
-def categorias(request, acao=None, id=None):
-    try:
-        # define a classe de serviço
-        servico = ServicosFactory().obter_categoria_service()
-
-        # Listar registros
-        # 'categorias/': Exibir a pagina de listagem
-        if acao is None:
-            # obtem os registros usando o serviço
-            registros = servico.listar()
-            return render(request, 'categorias_listar.html', context={'registros': registros})
-        
-        # Salvar registro
-        # 'categorias/salvar/': insere, altera ou exclui um registro
-        elif acao == 'salvar':
-            form_data = request.POST
-            acao_form = form_data['acao']
-
-            try:
-                if acao_form == 'Inclusão':
-                    categoria = Categoria(descricao=form_data['descricao'])
-                    # inclui a categoria usando o serviço
-                    servico.incluir(categoria)
-
-                elif acao_form == 'Exclusão':
-                    id = int(form_data['id'])
-                    # exclui a categoria usando o serviço
-                    servico.excluir(id)
-
-                else:
-                    categoria = Categoria(
-                        id=int(form_data['id']), 
-                        descricao=form_data['descricao']
-                    )
-                    # altera a categoria usando o serviço
-                    servico.alterar(categoria)
-
-                # Sempre retornar um HttpResponseRedirect após processar dados "POST". 
-                # Isso evita que os dados sejam postados 2 vezes caso usuário clicar "Voltar".
-                return HttpResponseRedirect( reverse("categorias") )
-
-            # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-            except Exception as err:
-                return render(request, 'categorias_editar.html', 
-                              context={
-                                    'acao': acao_form, 
-                                    'form': CategoriaForm(data=form_data),
-                                    'ERRO': err,
-                                })
-        
-        # inserir registro
-        # 'categorias/incluir/': Exibir a pagina de inclusão
-        elif acao == 'incluir':
-            return render(request, 'categorias_editar.html',
-                           context={'acao': 'Inclusão', 'form': CategoriaForm() })
-        
-        # Alterar ou excluir registro
-        # 'categorias/alterar/<:id>/': Exibir a pagina de alteração
-        # 'categorias/excluir/<:id>/': Exibir a pagina de exclusão
-        elif acao in ['alterar', 'excluir']:
-            acao = 'Alteração' if acao == 'alterar' else 'Exclusão'
-
-            # seleciona o registro pelo id informado
-            categoria = servico.obter_por_id(id)
-            form = CategoriaForm({'id': categoria.id, 'descricao': categoria.descricao})
-
-            return render(request, 'categorias_editar.html', 
-                           context={'acao': acao, 'form': form })
-        
-        # acao INVALIDA
-        else:
-            raise Exception('Ação inválida')
-
-    # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-    except Exception as err:
-        return render(request, 'home.html', context={'ERRO': err})
+def _repository():
+    return ServicosFactory().obter_ong_repository()
 
 
+def _ong_from_form(form, ong_id=None, ong_atual=None):
+    dados = form.cleaned_data
+    estado_codigo = dados["estado"]
+    estado = (
+        next(
+            item
+            for item in EstadoBrasileiroEnum
+            if item.codigo == int(estado_codigo)
+        )
+        if estado_codigo
+        else None
+    )
+    return ONG(
+        id=ong_id,
+        cnpj=dados["cnpj"],
+        razao_social=dados["razao_social"],
+        descricao=dados["descricao"],
+        pix_para_doacao=dados["pix_para_doacao"],
+        email=dados["email"],
+        senha=dados["senha"],
+        cep=dados["cep"],
+        rua=dados["rua"],
+        numero=dados["numero"],
+        bairro=dados["bairro"],
+        cidade=dados["cidade"],
+        estado=estado,
+        telefone=dados["telefone"],
+        url_foto_perfil=ong_atual.url_foto_perfil if ong_atual else None,
+    )
 
 
-# Método responsavel por listar, incluir, alterar e excluir os Produtos.
-def produtos(request, acao=None, id=None):
-    try:
-        # define a classe de serviço
-        servico = ServicosFactory().obter_produto_service()
-
-        # Listar registros
-        # 'produtos/': Exibir a pagina de listagem
-        if acao is None:
-            # obtem os registros usando o serviço
-            registros = servico.listar()
-            return render(request, 'produtos_listar.html', context={'registros': registros})
-        
-        # Salvar registro
-        # 'produtos/salvar/': insere, altera ou exclui um registro
-        elif acao == 'salvar':
-            form_data = request.POST
-            acao_form = form_data['acao']
-
-            try:
-                if acao_form == 'Inclusão':
-                    # converte os dados do formulario para objeto 
-                    produto = Produto(
-                            id=None, 
-                            descricao=form_data['descricao'],
-                            preco_unitario=float(form_data['preco_unitario']),
-                            quantidade_estoque=int(form_data['quantidade_estoque']),
-                            categoria=Categoria(
-                                id=int(form_data['categoria_id']), 
-                                descricao=None,
-                            ),
-                    ) 
-                    # inclui o produto usando o serviço
-                    servico.incluir(produto)
-
-                elif acao_form == 'Exclusão':
-                    id = int(form_data['id'])
-                    # exclui o produto usando o serviço
-                    servico.excluir(id)
-
-                else:
-                    # converte os dados do formulario para objeto 
-                    produto = Produto(
-                            id=int(form_data['id']), 
-                            descricao=form_data['descricao'],
-                            preco_unitario=float(form_data['preco_unitario']),
-                            quantidade_estoque=int(form_data['quantidade_estoque']),
-                            categoria=Categoria(
-                                id=int(form_data['categoria_id']), 
-                                descricao=None,
-                            ),
-                    ) 
-                    # altera o produto usando o serviço
-                    servico.alterar(produto)
+def _add_repository_error(form, error):
+    if isinstance(error, ValidationError):
+        message = "; ".join(str(item) for item in error.messages)
+    else:
+        message = str(error)
+    form.add_error(None, message)
 
 
-                # Sempre retornar um HttpResponseRedirect após processar dados "POST". 
-                # Isso evita que os dados sejam postados 2 vezes caso usuário clicar "Voltar".
-                return HttpResponseRedirect( reverse("produtos") )
-            
-            # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-            except Exception as err:
-                return render(request, 'produtos_editar.html', 
-                              context={
-                                    'acao': acao_form, 
-                                    'form': ProdutoForm(data=form_data),
-                                    'ERRO': err,
-                                })
-        
-        # inserir registro
-        # 'produtos/incluir/': Exibir a pagina de inclusão
-        elif acao == 'incluir':
-            return render(request, 'produtos_editar.html',
-                           context={'acao': 'Inclusão', 'form': ProdutoForm() })
-        
-        # Alterar ou excluir registro
-        # 'produtos/alterar/<:id>/': Exibir a pagina de alteração
-        # 'produtos/excluir/<:id>/': Exibir a pagina de exclusão
-        elif acao in ['alterar', 'excluir']:
-            acao = 'Alteração' if acao == 'alterar' else 'Exclusão'
-
-            # seleciona o registro pelo id informado
-            produto = servico.obter_por_id(id)
-            form = ProdutoForm({
-                'id': produto.id, 
-                'descricao': produto.descricao,
-                'preco_unitario': produto.preco_unitario,
-                'quantidade_estoque': produto.quantidade_estoque,
-                'categoria_id': produto.categoria.id,
-                'categoria': produto.categoria.descricao,
-            })
-
-            return render(request, 'produtos_editar.html', 
-                           context={'acao': acao, 'form': form })
-        
-        # acao INVALIDA
-        else:
-            raise Exception('Ação inválida')
-
-    # se ocorreu algunm erro, insere a mensagem para ser exibida no contexto da página 
-    except Exception as err:
-        raise Exception(f'Erro ao processar a requisição: {err}') from err
-        # return render(request, 'home.html', context={'ERRO': err})
-
-
-# Exibe a página inicial da aplicação
 def home(request):
-    '''Exibe a pagina inicial da aplicação'''
-    # define a página HTML (template) que deverá será carregada
-    template = 'home.html'
-    return render(request, template)
+    return render(request, "home.html")
 
 
+def listar_ongs(request):
+    ongs = _repository().listar()
+    return render(request, "ongs/listar.html", {"ongs": ongs})
+
+
+def detalhe_ong(request, ong_id):
+    ong = _repository().buscar_id(ong_id)
+    if ong is None:
+        return render(request, "404.html", status=404)
+    return render(request, "ongs/detalhe.html", {"ong": ong})
+
+
+@require_http_methods(["GET", "POST"])
+def criar_ong(request):
+    form = OngForm(request.POST or None, criar=True)
+    if request.method == "POST" and form.is_valid():
+        try:
+            _repository().criar(_ong_from_form(form))
+            messages.success(request, "ONG cadastrada com sucesso.")
+            return redirect("ongs_listar")
+        except (ValidationError, ValueError, TypeError) as error:
+            _add_repository_error(form, error)
+
+    return render(request, "ongs/formulario.html", {"form": form, "titulo": "Cadastrar ONG"})
+
+
+@require_http_methods(["GET", "POST"])
+def editar_ong(request, ong_id):
+    repository = _repository()
+    ong = repository.buscar_id(ong_id)
+    if ong is None:
+        return render(request, "404.html", status=404)
+
+    form = OngForm(request.POST or None, ong=ong)
+    if request.method == "POST" and form.is_valid():
+        try:
+            atualizado = _ong_from_form(form, ong_id=ong_id, ong_atual=ong)
+            resultado = repository.alterar(ong_id, atualizado)
+            if resultado is None:
+                return render(request, "404.html", status=404)
+            messages.success(request, "Dados da ONG atualizados com sucesso.")
+            return redirect("ongs_detalhe", ong_id=ong_id)
+        except (ValidationError, ValueError, TypeError) as error:
+            _add_repository_error(form, error)
+
+    return render(
+        request,
+        "ongs/formulario.html",
+        {"form": form, "titulo": "Editar ONG", "ong": ong},
+    )
+
+
+@require_http_methods(["GET", "POST"])
+def excluir_ong(request, ong_id):
+    repository = _repository()
+    ong = repository.buscar_id(ong_id)
+    if ong is None:
+        return render(request, "404.html", status=404)
+
+    if request.method == "POST":
+        try:
+            if repository.deletar(ong_id):
+                messages.success(request, "ONG excluída com sucesso.")
+                return redirect("ongs_listar")
+            return render(request, "404.html", status=404)
+        except ProtectedError:
+            messages.error(
+                request,
+                "Esta ONG não pode ser excluída enquanto possuir animais cadastrados.",
+            )
+            return redirect("ongs_detalhe", ong_id=ong_id)
+        except (ValidationError, ValueError, TypeError) as error:
+            messages.error(request, str(error))
+            return redirect("ongs_detalhe", ong_id=ong_id)
+
+    return render(request, "ongs/confirmar_exclusao.html", {"ong": ong})
