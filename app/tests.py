@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.test import SimpleTestCase, override_settings
+from django.template.loader import get_template
 from django.urls import reverse
 
 from app.forms import OngForm
@@ -63,6 +64,21 @@ class OngDatabaseConfigurationTests(SimpleTestCase):
     MESSAGE_STORAGE="django.contrib.messages.storage.cookie.CookieStorage"
 )
 class OngViewsTests(SimpleTestCase):
+    def test_templates_django_compilam(self):
+        templates = (
+            "base.html",
+            "home.html",
+            "404.html",
+            "ongs/formulario.html",
+            "ongs/listar.html",
+            "ongs/detalhe.html",
+            "ongs/confirmar_exclusao.html",
+        )
+
+        for template_name in templates:
+            with self.subTest(template=template_name):
+                get_template(template_name)
+
     def test_home_exibe_pagina_inicial(self):
         response = self.client.get(reverse("home"))
 

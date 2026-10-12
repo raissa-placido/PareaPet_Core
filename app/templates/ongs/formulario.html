@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}{{ titulo }} | Parêa Pet{% endblock
-%} {% block content %}
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | Parêa Pet{% endblock %}
+{% block content %}
 <style>
   .ong-form-shell {
     display: grid;
@@ -216,25 +217,33 @@
     </p>
 
     <form method="post" novalidate>
-      {% csrf_token %} {% if form.non_field_errors %}
+      {% csrf_token %}
+      {% if form.non_field_errors %}
       <div class="ong-form-errors">{{ form.non_field_errors }}</div>
       {% endif %}
 
       <h3>Dados da organização</h3>
       <div class="ong-form-fields">
         <div class="field">
-          {{ form.razao_social.label_tag }} {{ form.razao_social }} {{
-          form.razao_social.errors }}
+          {{ form.razao_social.label_tag }}
+          {{ form.razao_social }}
+          {{ form.razao_social.errors }}
         </div>
         <div class="field">
-          {{ form.cnpj.label_tag }} {{ form.cnpj }} {{ form.cnpj.errors }}
+          {{ form.cnpj.label_tag }}
+          {{ form.cnpj }}
+          {{ form.cnpj.errors }}
         </div>
         <div class="field">
-          {{ form.email.label_tag }} {{ form.email }} {{ form.email.errors }}
+          {{ form.email.label_tag }}
+          {{ form.email }}
+          {{ form.email.errors }}
         </div>
         <div class="field">
-          {{ form.senha.label_tag }} {{ form.senha }} {{ form.senha.errors }} {%
-          if ong %}
+          {{ form.senha.label_tag }}
+          {{ form.senha }}
+          {{ form.senha.errors }}
+          {% if ong %}
           <small class="muted"
             >Deixe em branco para manter a senha atual.</small
           >
@@ -243,38 +252,53 @@
           {% endif %}
         </div>
         <div class="field">
-          {{ form.pix_para_doacao.label_tag }} {{ form.pix_para_doacao }} {{
-          form.pix_para_doacao.errors }}
+          {{ form.pix_para_doacao.label_tag }}
+          {{ form.pix_para_doacao }}
+          {{ form.pix_para_doacao.errors }}
         </div>
         <div class="field full">
-          {{ form.descricao.label_tag }} {{ form.descricao }} {{
-          form.descricao.errors }}
+          {{ form.descricao.label_tag }}
+          {{ form.descricao }}
+          {{ form.descricao.errors }}
         </div>
       </div>
 
       <h3>Endereço e contato</h3>
       <div class="ong-form-fields">
         <div class="field">
-          {{ form.cep.label_tag }} {{ form.cep }} {{ form.cep.errors }}
+          {{ form.cep.label_tag }}
+          {{ form.cep }}
+          {{ form.cep.errors }}
         </div>
         <div class="field">
-          {{ form.telefone.label_tag }} {{ form.telefone }} {{
-          form.telefone.errors }}
+          {{ form.telefone.label_tag }}
+          {{ form.telefone }}
+          {{ form.telefone.errors }}
         </div>
         <div class="field">
-          {{ form.rua.label_tag }} {{ form.rua }} {{ form.rua.errors }}
+          {{ form.rua.label_tag }}
+          {{ form.rua }}
+          {{ form.rua.errors }}
         </div>
         <div class="field">
-          {{ form.numero.label_tag }} {{ form.numero }} {{ form.numero.errors }}
+          {{ form.numero.label_tag }}
+          {{ form.numero }}
+          {{ form.numero.errors }}
         </div>
         <div class="field">
-          {{ form.bairro.label_tag }} {{ form.bairro }} {{ form.bairro.errors }}
+          {{ form.bairro.label_tag }}
+          {{ form.bairro }}
+          {{ form.bairro.errors }}
         </div>
         <div class="field">
-          {{ form.cidade.label_tag }} {{ form.cidade }} {{ form.cidade.errors }}
+          {{ form.cidade.label_tag }}
+          {{ form.cidade }}
+          {{ form.cidade.errors }}
         </div>
         <div class="field">
-          {{ form.estado.label_tag }} {{ form.estado }} {{ form.estado.errors }}
+          {{ form.estado.label_tag }}
+          {{ form.estado }}
+          {{ form.estado.errors }}
         </div>
       </div>
 

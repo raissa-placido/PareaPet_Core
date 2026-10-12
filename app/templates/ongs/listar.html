@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}ONGs | Parêa Pet{% endblock %} {%
-block content %}
+{% extends "base.html" %}
+{% block title %}ONGs | Parêa Pet{% endblock %}
+{% block content %}
 <div class="muted">Cadastro e administração</div>
 <h1>Organizações (ONGs)</h1>
 <p class="muted">Consulte, cadastre e mantenha os dados das organizações.</p>
@@ -30,9 +31,14 @@ block content %}
           <td>{{ ong.cnpj }}</td>
           <td>{{ ong.email }}</td>
           <td>
-            {% if ong.cidade %} {{ ong.cidade }} {% endif %} {% if ong.estado %}
-            {% if ong.cidade %}, {% endif %} {{ ong.estado.descricao }} {% endif
-            %} {% if not ong.cidade and not ong.estado %}—{% endif %}
+            {% if ong.cidade %}
+            {{ ong.cidade }}
+            {% endif %}
+            {% if ong.estado %}
+            {% if ong.cidade %}, {% endif %}
+            {{ ong.estado.descricao }}
+            {% endif %}
+            {% if not ong.cidade and not ong.estado %}—{% endif %}
           </td>
           <td><a href="{% url 'ongs_editar' ong_id=ong.id %}">Editar</a></td>
         </tr>

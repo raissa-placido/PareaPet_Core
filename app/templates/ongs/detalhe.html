@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}{{ ong.razao_social }} | Parêa Pet{%
-endblock %} {% block content %}
+{% extends "base.html" %}
+{% block title %}{{ ong.razao_social }} | Parêa Pet{% endblock %}
+{% block content %}
 <p><a href="{% url 'ongs_listar' %}">← Voltar para a lista</a></p>
 <h1>{{ ong.razao_social }}</h1>
 <p class="muted">Dados cadastrais da organização.</p>
@@ -15,11 +16,19 @@ endblock %} {% block content %}
     <dd>{{ ong.pix_para_doacao|default:"Não informada" }}</dd>
     <dt>Endereço</dt>
     <dd>
-      {% if ong.rua %} {{ ong.rua }}, {{ ong.numero }} — {{ ong.bairro }} {%
-      else %} Não informado {% endif %} {% if ong.cep %}
-      <br />CEP: {{ ong.cep }} {% endif %} {% if ong.cidade or ong.estado %}
-      <br />{{ ong.cidade }} {% if ong.cidade and ong.estado %} - {% endif %} {%
-      if ong.estado %}{{ ong.estado.descricao }}{% endif %} {% endif %}
+      {% if ong.rua %}
+      {{ ong.rua }}, {{ ong.numero }} — {{ ong.bairro }}
+      {% else %}
+      Não informado
+      {% endif %}
+      {% if ong.cep %}
+      <br>CEP: {{ ong.cep }}
+      {% endif %}
+      {% if ong.cidade or ong.estado %}
+      <br>{{ ong.cidade }}
+      {% if ong.cidade and ong.estado %} - {% endif %}
+      {% if ong.estado %}{{ ong.estado.descricao }}{% endif %}
+      {% endif %}
     </dd>
     <dt>Telefone</dt>
     <dd>{{ ong.telefone|default:"Não informado" }}</dd>
