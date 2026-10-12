@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Parêa Pet{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+</head>
+<body class="min-h-screen bg-[#f6f8f3] font-sans text-[#263327]">
+    <header class="border-b border-[#e1e8da] bg-white">
+        <nav class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+            <a href="{% url 'home' %}" class="text-2xl font-extrabold tracking-tight text-[#557a3c]">Parêa Pet</a>
+            <div class="flex items-center gap-3">
+                {% if request.session.adotante_id %}
+                    <a href="{% url 'usuario_pp:perfil_usuario' %}" class="rounded-full px-4 py-2 font-semibold text-[#405638] hover:bg-[#f1f5ed]">Meu perfil</a>
+                    <a href="{% url 'usuario_pp:logout' %}" class="rounded-full border border-[#a94f48] px-4 py-2 font-semibold text-[#a94f48] hover:bg-red-50">Sair</a>
+                {% else %}
+                    <a href="{% url 'usuario_pp:login' %}" class="rounded-full px-4 py-2 font-semibold text-[#405638] hover:bg-[#f1f5ed]">Entrar</a>
+                    <a href="{% url 'usuario_pp:PreCadastro' %}" class="rounded-full bg-[#64884a] px-5 py-2 font-semibold text-white hover:bg-[#4f7038]">Criar conta</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="mx-auto min-h-[calc(100vh-144px)] max-w-6xl px-5 py-10">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="border-t border-[#e1e8da] bg-white">
+        <div class="mx-auto max-w-6xl px-5 py-5 text-sm text-[#62705e]">
+            Parêa Pet — adoção responsável, feita com carinho.
+        </div>
+    </footer>
+</body>
+</html>

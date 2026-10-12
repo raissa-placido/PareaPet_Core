@@ -32,7 +32,7 @@ def _enum_from_code(enum_type, code):
 
 
 class ConexaoBD_ORM:
-    DB_ALIAS = "db_solid"
+    DB_ALIAS = "default"
 
     def obter_conexao(self):
         if self.DB_ALIAS not in connections.databases:
@@ -77,6 +77,8 @@ class _BaseDAO:
         usuario = usuario or UsuarioBase()
         usuario.username = dados.email
         usuario.email = dados.email
+        if hasattr(dados, "nome"):
+            usuario.first_name = dados.nome or ""
         usuario.cep = dados.cep
         usuario.rua = dados.rua
         usuario.numero = dados.numero
@@ -274,7 +276,11 @@ class AdotanteDAO_ORM(_BaseDAO, ICrudDAO):
     @staticmethod
     def _para_dominio(registro: AdotanteModel) -> AdotanteDomain:
         dados = _BaseDAO._usuario_para_dominio(registro.adotante)
-        dados.update(cpf=registro.cpf, data_nascimento=registro.data_nascimento)
+        dados.update(
+            nome=registro.nome,
+            cpf=registro.cpf,
+            data_nascimento=registro.data_nascimento,
+        )
         return AdotanteDomain(**dados)
 
     def criar(self, dados: AdotanteDomain) -> AdotanteDomain:
@@ -301,6 +307,15 @@ class AdotanteDAO_ORM(_BaseDAO, ICrudDAO):
             AdotanteModel.objects.using(self._db)
             .select_related("adotante")
             .filter(adotante_id=id)
+            .first()
+        )
+        return self._para_dominio(registro) if registro else None
+
+    def buscar_email(self, email: str) -> AdotanteDomain | None:
+        registro = (
+            AdotanteModel.objects.using(self._db)
+            .select_related("adotante")
+            .filter(adotante__email__iexact=email)
             .first()
         )
         return self._para_dominio(registro) if registro else None

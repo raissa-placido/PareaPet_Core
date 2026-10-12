@@ -73,3 +73,40 @@ class OngForm(forms.Form):
         if senha:
             validate_password(senha)
         return senha
+
+
+class AdotanteForm(forms.Form):
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    nome = forms.CharField(label="Nome", max_length=50, required=False)
+    cpf = forms.CharField(label="CPF", max_length=14, required=False)
+    data_nascimento = forms.DateField(
+        label="Data de nascimento",
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    email = forms.EmailField(label="E-mail", max_length=254, required=True)
+    senha = forms.CharField(
+        label="Senha",
+        widget=forms.PasswordInput(render_value=False),
+        required=False,
+    )
+    telefone = forms.CharField(label="Telefone", max_length=20, required=False)
+    cep = forms.CharField(label="CEP", max_length=9, required=False)
+    rua = forms.CharField(label="Rua", max_length=100, required=False)
+    numero = forms.CharField(label="Número", max_length=20, required=False)
+    bairro = forms.CharField(label="Bairro", max_length=50, required=False)
+    cidade = forms.CharField(label="Cidade", max_length=50, required=False)
+    estado = forms.ChoiceField(
+        label="Estado",
+        required=False,
+        choices=[("", "Selecione")]
+        + [(estado.codigo, estado.descricao) for estado in EstadoBrasileiroEnum],
+    )
+
+    def __init__(self, *args, is_update=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["senha"].required = not is_update
+        if is_update:
+            self.fields["senha"].help_text = (
+                "Deixe em branco para manter a senha atual."
+            )

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'core.UsuarioBase'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,11 +79,10 @@ WSGI_APPLICATION = 'pareapet.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db_solid.sqlite3',
-        'ATOMIC_REQUESTS': False,
-    }
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "pareapet.sqlite3",
+    },
 }
 
 

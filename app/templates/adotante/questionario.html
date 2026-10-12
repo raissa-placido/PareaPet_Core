@@ -1,0 +1,40 @@
+{% extends "adotante/base.html" %}
+{% block title %}Questionário | Parêa Pet{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl rounded-3xl bg-white p-7 shadow-sm sm:p-10">
+    <a href="{% url 'usuario_pp:perfil_usuario' %}" class="font-semibold text-[#557a3c] underline">← Voltar ao perfil</a>
+    <p class="mt-7 font-bold uppercase tracking-widest text-[#64884a]">Sua jornada de adoção</p>
+    <h1 class="mt-2 text-3xl font-extrabold text-[#34482c]">Conte um pouco sobre o lar que pode oferecer</h1>
+    <p class="mt-3 text-[#62705e]">Suas respostas ficam no seu perfil e nos ajudam a entender suas preferências.</p>
+    <form method="post" action="{% url 'usuario_pp:questionario_adotante' %}" class="mt-7 space-y-7">
+        {% csrf_token %}
+        <fieldset>
+            <legend class="mb-3 font-bold">Qual tipo de pet você gostaria de adotar?</legend>
+            <div class="flex flex-wrap gap-3">
+                <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="q1" value="Cachorro"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Cachorro</span></label>
+                <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="q1" value="Gato"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Gato</span></label>
+                <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="q1" value="Ainda não sei"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Ainda não sei</span></label>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend class="mb-3 font-bold">Onde o pet vai morar?</legend>
+            <div class="flex flex-wrap gap-3">
+                <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="q2" value="Casa"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Casa</span></label>
+                <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="q2" value="Apartamento"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Apartamento</span></label>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend class="mb-3 font-bold">Quantas horas por dia o pet ficaria sozinho?</legend>
+            <div class="flex flex-wrap gap-3">
+                <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="q3" value="Até 4 horas"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Até 4 horas</span></label>
+                <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="q3" value="De 4 a 8 horas"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">De 4 a 8 horas</span></label>
+                <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="q3" value="Mais de 8 horas"><span class="inline-block rounded-full border border-[#cbd7c3] px-4 py-2 peer-checked:border-[#64884a] peer-checked:bg-[#64884a] peer-checked:text-white">Mais de 8 horas</span></label>
+            </div>
+        </fieldset>
+        <div class="flex flex-wrap justify-end gap-3 border-t border-[#e1e8da] pt-6">
+            <a href="{% url 'usuario_pp:perfil_usuario' %}" class="rounded-xl border border-[#64884a] px-5 py-3 font-bold text-[#557a3c]">Responder depois</a>
+            <button type="submit" class="rounded-xl bg-[#64884a] px-6 py-3 font-bold text-white hover:bg-[#4f7038]">Salvar respostas</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

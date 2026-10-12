@@ -1,0 +1,26 @@
+{% extends "adotante/base.html" %}
+{% block title %}Complete seu perfil | Parêa Pet{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl rounded-3xl bg-white p-7 shadow-sm sm:p-10">
+    <p class="font-bold uppercase tracking-widest text-[#64884a]">Cadastro de adotante</p>
+    <h1 class="mt-2 text-3xl font-extrabold text-[#34482c]">Complete seu perfil</h1>
+    <p class="mt-3 text-[#62705e]">Essas informações ajudam a preparar seu perfil para uma adoção responsável.</p>
+    {% if erro %}<div role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">{{ erro }}</div>{% endif %}
+    <form method="post" action="{% url 'usuario_pp:cadastro_adotante' %}" class="mt-7 grid gap-5 sm:grid-cols-2">
+        {% csrf_token %}
+        <div><label for="cpf" class="mb-2 block font-semibold">CPF</label><input id="cpf" name="cpf" value="{{ adotante.cpf|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="data_nascimento" class="mb-2 block font-semibold">Data de nascimento</label><input id="data_nascimento" name="data_nascimento" type="date" value="{{ adotante.data_nascimento|date:'Y-m-d' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="telefone" class="mb-2 block font-semibold">Telefone</label><input id="telefone" name="telefone" value="{{ adotante.telefone|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="cep" class="mb-2 block font-semibold">CEP</label><input id="cep" name="cep" value="{{ adotante.cep|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="rua" class="mb-2 block font-semibold">Rua</label><input id="rua" name="rua" value="{{ adotante.rua|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="numero" class="mb-2 block font-semibold">Número</label><input id="numero" name="numero" value="{{ adotante.numero|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="bairro" class="mb-2 block font-semibold">Bairro</label><input id="bairro" name="bairro" value="{{ adotante.bairro|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div><label for="cidade" class="mb-2 block font-semibold">Cidade</label><input id="cidade" name="cidade" value="{{ adotante.cidade|default:'' }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3"></div>
+        <div class="sm:col-span-2"><label for="estado" class="mb-2 block font-semibold">Estado</label><select id="estado" name="estado" class="w-full rounded-xl border border-[#cbd7c3] bg-white px-4 py-3"><option value="">Selecione um estado</option>{% for estado in estados %}<option value="{{ estado.codigo }}" {% if adotante.estado and adotante.estado.codigo == estado.codigo %}selected{% endif %}>{{ estado.descricao }}</option>{% endfor %}</select></div>
+        <div class="flex flex-wrap justify-end gap-3 pt-3 sm:col-span-2">
+            <a href="{% url 'usuario_pp:perfil_usuario' %}" class="rounded-xl border border-[#64884a] px-5 py-3 font-bold text-[#557a3c]">Preencher depois</a>
+            <button type="submit" class="rounded-xl bg-[#64884a] px-6 py-3 font-bold text-white hover:bg-[#4f7038]">Continuar para questionário</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

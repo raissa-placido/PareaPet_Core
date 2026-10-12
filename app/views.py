@@ -1,12 +1,16 @@
 from django.contrib import messages
+from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
+from django.http import HttpResponseNotAllowed, HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.views.decorators.http import require_http_methods, require_POST
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from app.factory import ServicosFactory
-from app.forms import OngForm
-from core.domain.entities.dominio import ONG
+from app.forms import AdotanteForm, OngForm
+from core.domain.entities.dominio import Adotante, ONG
 from core.domain.entities.enums import EstadoBrasileiroEnum
 
 
@@ -54,7 +58,7 @@ def _add_repository_error(form, error):
 
 
 def home(request):
-    return render(request, "home.html")
+    return render(request, "adotante/inicio.html")
 
 
 def listar_ongs(request):
@@ -77,10 +81,14 @@ def criar_ong(request):
             _repository().criar(_ong_from_form(form))
             messages.success(request, "ONG cadastrada com sucesso.")
             return redirect("ongs_listar")
-        except (ValidationError, ValueError, TypeError) as error:
+        except (ValidationError, ValueError, TypeError, IntegrityError) as error:
             _add_repository_error(form, error)
 
-    return render(request, "ongs/formulario.html", {"form": form, "titulo": "Cadastrar ONG"})
+    return render(
+        request,
+        "ongs/formulario.html",
+        {"form": form, "titulo": "Cadastrar ONG"},
+    )
 
 
 @require_http_methods(["GET", "POST"])
@@ -99,7 +107,7 @@ def editar_ong(request, ong_id):
                 return render(request, "404.html", status=404)
             messages.success(request, "Dados da ONG atualizados com sucesso.")
             return redirect("ongs_detalhe", ong_id=ong_id)
-        except (ValidationError, ValueError, TypeError) as error:
+        except (ValidationError, ValueError, TypeError, IntegrityError) as error:
             _add_repository_error(form, error)
 
     return render(
@@ -133,3 +141,248 @@ def excluir_ong(request, ong_id):
             return redirect("ongs_detalhe", ong_id=ong_id)
 
     return render(request, "ongs/confirmar_exclusao.html", {"ong": ong})
+
+
+def _obter_adotante_da_sessao(request):
+    adotante_id = request.session.get("adotante_id")
+    if adotante_id is None:
+        return None
+    try:
+        return ServicosFactory().obter_adotante_service().obter_por_id(
+            int(adotante_id)
+        )
+    except (TypeError, ValueError, LookupError):
+        request.session.pop("adotante_id", None)
+        return None
+
+
+def pre_cadastro_adotante(request):
+    if request.method == "GET":
+        if _obter_adotante_da_sessao(request) is not None:
+            return HttpResponseRedirect(reverse("usuario_pp:cadastro_adotante"))
+        return render(request, "adotante/cadastro.html")
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    nome = request.POST.get("nome", "").strip()
+    email = request.POST.get("email", "").strip().lower()
+    senha = request.POST.get("senha", "")
+    confirmar_senha = request.POST.get("confirmarSenha", "")
+    if not nome or not email or not senha:
+        erro = "Preencha nome, e-mail e senha."
+    elif senha != confirmar_senha:
+        erro = "As senhas não conferem."
+    else:
+        adotante = Adotante(
+            id=None,
+            nome=nome,
+            cpf=None,
+            data_nascimento=None,
+            email=email,
+            senha=senha,
+            cep=None,
+            rua=None,
+            numero=None,
+            bairro=None,
+            cidade=None,
+            estado=None,
+            telefone=None,
+        )
+        try:
+            criado = ServicosFactory().obter_adotante_service().incluir(adotante)
+            request.session["adotante_id"] = criado.id
+            request.session.pop("adotante_questionario", None)
+            return HttpResponseRedirect(reverse("usuario_pp:cadastro_adotante"))
+        except (ValidationError, ValueError, IntegrityError) as error:
+            erro = str(error)
+
+    return render(request, "adotante/cadastro.html", {"erro": erro})
+
+
+def cadastro_adotante(request):
+    adotante = _obter_adotante_da_sessao(request)
+    if adotante is None:
+        return HttpResponseRedirect(reverse("usuario_pp:PreCadastro"))
+    estados = list(EstadoBrasileiroEnum)
+    if request.method == "GET":
+        return render(
+            request,
+            "adotante/completar.html",
+            {"adotante": adotante, "estados": estados},
+        )
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    form_data = request.POST.copy()
+    form_data.update(
+        {
+            "id": str(adotante.id),
+            "nome": adotante.nome or "",
+            "email": adotante.email or "",
+            "senha": "",
+        }
+    )
+    form = AdotanteForm(form_data, is_update=True)
+    if not form.is_valid():
+        return render(
+            request,
+            "adotante/completar.html",
+            {"adotante": adotante, "estados": estados, "erro": form.errors},
+        )
+
+    dados = form.cleaned_data
+    dados["email"] = dados["email"].strip().lower()
+    dados["cpf"] = dados["cpf"] or None
+    dados["estado"] = next(
+        (
+            estado
+            for estado in EstadoBrasileiroEnum
+            if str(estado.codigo) == dados["estado"]
+        ),
+        None,
+    )
+    try:
+        ServicosFactory().obter_adotante_service().alterar(Adotante(**dados))
+        return HttpResponseRedirect(reverse("usuario_pp:questionario_adotante"))
+    except (ValidationError, ValueError, LookupError, IntegrityError) as error:
+        return render(
+            request,
+            "adotante/completar.html",
+            {"adotante": adotante, "estados": estados, "erro": str(error)},
+        )
+
+
+def questionario_adotante(request):
+    if _obter_adotante_da_sessao(request) is None:
+        return HttpResponseRedirect(reverse("usuario_pp:PreCadastro"))
+    if request.method == "POST":
+        respostas = {
+            chave: request.POST.getlist(chave)
+            for chave in request.POST
+            if chave.startswith("q")
+        }
+        request.session["adotante_questionario"] = respostas
+        return HttpResponseRedirect(reverse("usuario_pp:perfil_usuario"))
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET", "POST"])
+    return render(request, "adotante/questionario.html")
+
+
+def perfil_usuario(request):
+    adotante = _obter_adotante_da_sessao(request)
+    if adotante is None:
+        return HttpResponseRedirect(reverse("usuario_pp:login"))
+    return render(
+        request,
+        "adotante/perfil.html",
+        {
+            "adotante": adotante,
+            "respostas_questionario": request.session.get(
+                "adotante_questionario", {}
+            ),
+        },
+    )
+
+
+def alterar_cadastro_adotante(request):
+    adotante = _obter_adotante_da_sessao(request)
+    if adotante is None:
+        return HttpResponseRedirect(reverse("usuario_pp:login"))
+    estados = [
+        (estado.codigo, estado.descricao) for estado in EstadoBrasileiroEnum
+    ]
+    if request.method == "GET":
+        return render(
+            request,
+            "adotante/alterar.html",
+            {"adotante": adotante, "estados": estados},
+        )
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    dados_formulario = request.POST.copy()
+    dados_formulario["id"] = str(adotante.id)
+    dados_formulario.setdefault("nome", adotante.nome or "")
+    dados_formulario.setdefault("email", adotante.email or "")
+    dados_formulario.setdefault("senha", "")
+    if "sem_numero" in dados_formulario and not dados_formulario.get("numero"):
+        dados_formulario["numero"] = "S/N"
+    form = AdotanteForm(dados_formulario, is_update=True)
+    if not form.is_valid():
+        return render(
+            request,
+            "adotante/alterar.html",
+            {"adotante": adotante, "estados": estados, "erro": form.errors},
+        )
+
+    dados = form.cleaned_data
+    dados["email"] = dados["email"].strip().lower()
+    dados["cpf"] = dados["cpf"] or None
+    dados["estado"] = next(
+        (
+            estado
+            for estado in EstadoBrasileiroEnum
+            if str(estado.codigo) == dados["estado"]
+        ),
+        None,
+    )
+    try:
+        ServicosFactory().obter_adotante_service().alterar(Adotante(**dados))
+        return HttpResponseRedirect(reverse("usuario_pp:perfil_usuario"))
+    except (ValidationError, ValueError, LookupError, IntegrityError) as error:
+        return render(
+            request,
+            "adotante/alterar.html",
+            {"adotante": adotante, "estados": estados, "erro": str(error)},
+        )
+
+
+def excluir_adotante(request):
+    adotante = _obter_adotante_da_sessao(request)
+    if adotante is None:
+        return HttpResponseRedirect(reverse("usuario_pp:login"))
+    if request.method == "GET":
+        return render(request, "adotante/excluir.html", {"adotante": adotante})
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    try:
+        ServicosFactory().obter_adotante_service().excluir(adotante.id)
+    except LookupError:
+        request.session.flush()
+        return HttpResponseRedirect(reverse("home"))
+    request.session.flush()
+    return HttpResponseRedirect(reverse("home"))
+
+
+def login_adotante(request):
+    if _obter_adotante_da_sessao(request) is not None:
+        return HttpResponseRedirect(reverse("usuario_pp:perfil_usuario"))
+    if request.method == "GET":
+        return render(request, "adotante/login.html")
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["GET", "POST"])
+
+    email = request.POST.get("email", "").strip().lower()
+    senha = request.POST.get("senha", "")
+    servico = ServicosFactory().obter_adotante_service()
+    adotante = servico.obter_por_email(email) if email else None
+    if adotante is None or not check_password(senha, adotante.senha):
+        return render(
+            request,
+            "adotante/login.html",
+            {"erro": "E-mail ou senha inválidos."},
+        )
+    request.session["adotante_id"] = adotante.id
+    return HttpResponseRedirect(reverse("usuario_pp:perfil_usuario"))
+
+
+def logout_adotante(request):
+    request.session.flush()
+    return HttpResponseRedirect(reverse("home"))
+
+
+def status_adocao(request):
+    if _obter_adotante_da_sessao(request) is None:
+        return HttpResponseRedirect(reverse("usuario_pp:login"))
+    return HttpResponseRedirect(reverse("usuario_pp:perfil_usuario"))

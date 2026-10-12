@@ -93,9 +93,11 @@ class Adotante(UsuarioBase):
     def __init__(self,
                  cpf,
                  data_nascimento,
+                 nome=None,
                  **dados_usuario
                 ):
 
         super().__init__(tipo_usuario=TipoUsuarioEnum.ADOTANTE, **dados_usuario)
+        self.nome = nome
         self.cpf = cpf
         self.data_nascimento = data_nascimento
