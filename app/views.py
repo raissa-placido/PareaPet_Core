@@ -1,205 +1,171 @@
-import sys
-
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
 from app.factory import ServicosFactory
-from app.forms import CategoriaForm, ProdutoForm
-from core.domain.entities.dominio import Categoria, Produto
+from app.forms import PetForm
+from core.domain.entities.dominio import Pet
+from core.domain.entities.enums import (
+    AlocacaoEnum,
+    EspecieEnum,
+    MoradiaEnum,
+    PorteEnum,
+    SexoAnimalEnum,
+)
 
 
-# Método responsavel por listar, incluir, alterar e excluir as Categorias.
-def categorias(request, acao=None, id=None):
-    try:
-        # define a classe de serviço
-        servico = ServicosFactory().obter_categoria_service()
+def _repository():
+    return ServicosFactory().obter_pet_repository()
 
-        # Listar registros
-        # 'categorias/': Exibir a pagina de listagem
-        if acao is None:
-            # obtem os registros usando o serviço
-            registros = servico.listar()
-            return render(request, 'categorias_listar.html', context={'registros': registros})
-        
-        # Salvar registro
-        # 'categorias/salvar/': insere, altera ou exclui um registro
-        elif acao == 'salvar':
-            form_data = request.POST
-            acao_form = form_data['acao']
+# retorna a enumeração equivalente ao código informado
+def _enum_by_code(enum_class, code):
+    return next(item for item in enum_class if item.codigo == code)
 
-            try:
-                if acao_form == 'Inclusão':
-                    categoria = Categoria(descricao=form_data['descricao'])
-                    # inclui a categoria usando o serviço
-                    servico.incluir(categoria)
+# retorna um pet
+def _pet_from_form(form, pet_id=None):
+    data = form.cleaned_data
+    ong = ServicosFactory().obter_ong_repository().buscar_id(data["ong"].ong_id)
+    if ong is None:
+        raise ValueError("A ONG selecionada não foi encontrada.")
 
-                elif acao_form == 'Exclusão':
-                    id = int(form_data['id'])
-                    # exclui a categoria usando o serviço
-                    servico.excluir(id)
+    return Pet(
+        id=pet_id,
+        nome=data["nome"],
+        especie=_enum_by_code(EspecieEnum, data["especie"]),
+        ong=ong,
+        sexo=_enum_by_code(SexoAnimalEnum, data["sexo"]),
+        porte=_enum_by_code(PorteEnum, data["porte"]),
+        moradia=_enum_by_code(MoradiaEnum, data["moradia_recomendada"]),
+        alocacao=_enum_by_code(AlocacaoEnum, data["alocacao"]),
+        disponivel=data["disponivel"],
+        biografia=data["biografia"],
+        data_nascimento=data["data_nascimento"],
+    )
 
-                else:
-                    categoria = Categoria(
-                        id=int(form_data['id']), 
-                        descricao=form_data['descricao']
-                    )
-                    # altera a categoria usando o serviço
-                    servico.alterar(categoria)
-
-                # Sempre retornar um HttpResponseRedirect após processar dados "POST". 
-                # Isso evita que os dados sejam postados 2 vezes caso usuário clicar "Voltar".
-                return HttpResponseRedirect( reverse("categorias") )
-
-            # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-            except Exception as err:
-                return render(request, 'categorias_editar.html', 
-                              context={
-                                    'acao': acao_form, 
-                                    'form': CategoriaForm(data=form_data),
-                                    'ERRO': err,
-                                })
-        
-        # inserir registro
-        # 'categorias/incluir/': Exibir a pagina de inclusão
-        elif acao == 'incluir':
-            return render(request, 'categorias_editar.html',
-                           context={'acao': 'Inclusão', 'form': CategoriaForm() })
-        
-        # Alterar ou excluir registro
-        # 'categorias/alterar/<:id>/': Exibir a pagina de alteração
-        # 'categorias/excluir/<:id>/': Exibir a pagina de exclusão
-        elif acao in ['alterar', 'excluir']:
-            acao = 'Alteração' if acao == 'alterar' else 'Exclusão'
-
-            # seleciona o registro pelo id informado
-            categoria = servico.obter_por_id(id)
-            form = CategoriaForm({'id': categoria.id, 'descricao': categoria.descricao})
-
-            return render(request, 'categorias_editar.html', 
-                           context={'acao': acao, 'form': form })
-        
-        # acao INVALIDA
-        else:
-            raise Exception('Ação inválida')
-
-    # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-    except Exception as err:
-        return render(request, 'home.html', context={'ERRO': err})
+# retorna uma um formulário de pet
+def _form_from_pet(pet):
+    return PetForm(
+        initial={
+            "ong": pet.ong.id,
+            "especie": pet.especie.codigo,
+            "sexo": pet.sexo.codigo,
+            "nome": pet.nome,
+            "data_nascimento": pet.data_nascimento,
+            "alocacao": pet.alocacao.codigo,
+            "porte": pet.porte.codigo,
+            "moradia_recomendada": pet.moradia_recomendada.codigo,
+            "disponivel": pet.disponivel,
+            "biografia": pet.biografia,
+        }
+    )
 
 
+def listar_pets(request):
+    if request.method != "GET":
+        return render(
+            request,
+            "pets_listar.html",
+            {"registros": _repository().listar(), "ERRO": "Método inválido."},
+            status=405,
+        )
+    return render(
+        request,
+        "pets_listar.html",
+        {"registros": _repository().listar()},
+    )
 
 
-# Método responsavel por listar, incluir, alterar e excluir os Produtos.
-def produtos(request, acao=None, id=None):
-    try:
-        # define a classe de serviço
-        servico = ServicosFactory().obter_produto_service()
+def adicionar_pet(request):
+    form = PetForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            _repository().criar(_pet_from_form(form))
+            return HttpResponseRedirect(reverse("listar_pets"))
+        except (TypeError, ValueError, ValidationError) as error:
+            form.add_error(None, str(error))
 
-        # Listar registros
-        # 'produtos/': Exibir a pagina de listagem
-        if acao is None:
-            # obtem os registros usando o serviço
-            registros = servico.listar()
-            return render(request, 'produtos_listar.html', context={'registros': registros})
-        
-        # Salvar registro
-        # 'produtos/salvar/': insere, altera ou exclui um registro
-        elif acao == 'salvar':
-            form_data = request.POST
-            acao_form = form_data['acao']
-
-            try:
-                if acao_form == 'Inclusão':
-                    # converte os dados do formulario para objeto 
-                    produto = Produto(
-                            id=None, 
-                            descricao=form_data['descricao'],
-                            preco_unitario=float(form_data['preco_unitario']),
-                            quantidade_estoque=int(form_data['quantidade_estoque']),
-                            categoria=Categoria(
-                                id=int(form_data['categoria_id']), 
-                                descricao=None,
-                            ),
-                    ) 
-                    # inclui o produto usando o serviço
-                    servico.incluir(produto)
-
-                elif acao_form == 'Exclusão':
-                    id = int(form_data['id'])
-                    # exclui o produto usando o serviço
-                    servico.excluir(id)
-
-                else:
-                    # converte os dados do formulario para objeto 
-                    produto = Produto(
-                            id=int(form_data['id']), 
-                            descricao=form_data['descricao'],
-                            preco_unitario=float(form_data['preco_unitario']),
-                            quantidade_estoque=int(form_data['quantidade_estoque']),
-                            categoria=Categoria(
-                                id=int(form_data['categoria_id']), 
-                                descricao=None,
-                            ),
-                    ) 
-                    # altera o produto usando o serviço
-                    servico.alterar(produto)
+    return render(
+        request,
+        "pets_editar.html",
+        {
+            "acao": "Inclusão",
+            "form": form,
+        },
+    )
 
 
-                # Sempre retornar um HttpResponseRedirect após processar dados "POST". 
-                # Isso evita que os dados sejam postados 2 vezes caso usuário clicar "Voltar".
-                return HttpResponseRedirect( reverse("produtos") )
-            
-            # se ocorreu algum erro, insere a mensagem para ser exibida no contexto da página 
-            except Exception as err:
-                return render(request, 'produtos_editar.html', 
-                              context={
-                                    'acao': acao_form, 
-                                    'form': ProdutoForm(data=form_data),
-                                    'ERRO': err,
-                                })
-        
-        # inserir registro
-        # 'produtos/incluir/': Exibir a pagina de inclusão
-        elif acao == 'incluir':
-            return render(request, 'produtos_editar.html',
-                           context={'acao': 'Inclusão', 'form': ProdutoForm() })
-        
-        # Alterar ou excluir registro
-        # 'produtos/alterar/<:id>/': Exibir a pagina de alteração
-        # 'produtos/excluir/<:id>/': Exibir a pagina de exclusão
-        elif acao in ['alterar', 'excluir']:
-            acao = 'Alteração' if acao == 'alterar' else 'Exclusão'
+def alterar_pet(request, id):
 
-            # seleciona o registro pelo id informado
-            produto = servico.obter_por_id(id)
-            form = ProdutoForm({
-                'id': produto.id, 
-                'descricao': produto.descricao,
-                'preco_unitario': produto.preco_unitario,
-                'quantidade_estoque': produto.quantidade_estoque,
-                'categoria_id': produto.categoria.id,
-                'categoria': produto.categoria.descricao,
-            })
-
-            return render(request, 'produtos_editar.html', 
-                           context={'acao': acao, 'form': form })
-        
-        # acao INVALIDA
-        else:
-            raise Exception('Ação inválida')
-
-    # se ocorreu algunm erro, insere a mensagem para ser exibida no contexto da página 
-    except Exception as err:
-        raise Exception(f'Erro ao processar a requisição: {err}') from err
-        # return render(request, 'home.html', context={'ERRO': err})
+    # busca do pet
+    repository = _repository()
+    pet = repository.buscar_id(id)
+    if pet is None:
+        return render(
+            request,
+            "pets_listar.html",
+            {
+                "registros": repository.listar(),
+                "ERRO": "Pet não encontrado.",
+            },
+            status=404,
+        )
 
 
-# Exibe a página inicial da aplicação
+    form = (
+        PetForm(request.POST)
+        if request.method == "POST"
+        else _form_from_pet(pet)
+    )
+    
+    if request.method == "POST" and form.is_valid():
+        try:
+            if repository.alterar(id, _pet_from_form(form, id)) is None:
+                raise ValueError("Pet não encontrado.")
+            return HttpResponseRedirect(reverse("listar_pets"))
+        except (TypeError, ValueError, ValidationError) as error:
+            form.add_error(None, str(error))
+
+    return render(
+        request,
+        "pets_editar.html",
+        {
+            "acao": "Alteração",
+            "form": form,
+            "pet_id": id,
+        },
+    )
+
+
+def remover_pet(request, id):
+    repository = _repository()
+    pet = repository.buscar_id(id)
+    if pet is None:
+        return render(
+            request,
+            "pets_listar.html",
+            {
+                "registros": repository.listar(),
+                "ERRO": "Pet não encontrado.",
+            },
+            status=404,
+        )
+
+    if request.method == "POST":
+        try:
+            if not repository.deletar(id):
+                raise ValueError("Pet não encontrado.")
+            return HttpResponseRedirect(reverse("listar_pets"))
+        except (TypeError, ValueError, ValidationError) as error:
+            return render(
+                request,
+                "pets_remover.html",
+                {"pet": pet, "ERRO": str(error)},
+                status=400,
+            )
+
+    return render(request, "pets_remover.html", {"pet": pet})
+
+
 def home(request):
-    '''Exibe a pagina inicial da aplicação'''
-    # define a página HTML (template) que deverá será carregada
-    template = 'home.html'
-    return render(request, template)
-
-
+    return render(request, "home.html")

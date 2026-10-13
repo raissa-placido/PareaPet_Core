@@ -78,10 +78,14 @@ WSGI_APPLICATION = 'pareapet.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'arq_soft.sqlite3',
-    # }
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db_solid.sqlite3",
+    },
+    "db_solid": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db_solid.sqlite3",
+    },
 }
 
 

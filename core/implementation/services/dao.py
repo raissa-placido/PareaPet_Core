@@ -35,13 +35,9 @@ class ConexaoBD_ORM:
 
     def obter_conexao(self):
         if self.DB_ALIAS not in connections.databases:
-            connections.databases[self.DB_ALIAS] = {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": "db_solid.sqlite3",
-                "TIME_ZONE": "America/Fortaleza",
-                "CONN_MAX_AGE": 60,
-                "AUTOCOMMIT": True,
-            }
+            raise RuntimeError(
+                f"O banco '{self.DB_ALIAS}' não está configurado em DATABASES."
+            )
         return connections[self.DB_ALIAS]
 
 
@@ -155,7 +151,7 @@ class PetDAO_ORM(_BaseDAO, ICrudDAO):
         ong = ONGModel.objects.using(self._db).get(pk=novos_dados.ong.id)
         atualizado = self._para_modelo(novos_dados, ong)
         atualizado.pk = registro.pk
-        atualizado.full_clean()
+        atualizado.full_clean(exclude=["id"])
         atualizado.save(using=self._db)
         novos_dados.id = atualizado.pk
         return novos_dados
