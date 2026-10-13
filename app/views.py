@@ -168,4 +168,4 @@ def remover_pet(request, id):
 
 
 def home(request):
-    return render(request, "home.html")
+    return HttpResponseRedirect(reverse("listar_pets"))

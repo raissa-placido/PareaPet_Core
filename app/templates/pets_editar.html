@@ -7,7 +7,7 @@
     <div class="card-heading">
         <div>
             <h1>{{ acao }} pet</h1>
-            <p class="subtitle">Preencha os dados do animal abaixo.</p>
+            <p class="subtitle">Preencha os dados do animal para mantê-lo visível para adoção.</p>
         </div>
     </div>
 
@@ -27,7 +27,7 @@
             {% endfor %}
         </div>
         <div class="form-actions">
-            <button type="submit">Salvar alterações</button>
+            <button type="submit">Salvar pet</button>
             <a class="button secondary" href="{% url 'listar_pets' %}">Cancelar</a>
         </div>
     </form>

@@ -24,39 +24,11 @@ from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # define as rotas de URL da nossa aplicacao
     path('', views.home, name='home'),
-    
-    # path('instrucoes/', 'instrucoes/instrucoes.html', name='instrucoes'),
+    path('pets/', views.listar_pets, name='listar_pets'),
+    path('pets/adicionar/', views.adicionar_pet, name='adicionar_pet'),
+    path('pets/<int:id>/alterar/', views.alterar_pet, name='alterar_pet'),
+    path('pets/<int:id>/remover/', views.remover_pet, name='remover_pet'),
+]
 
-
-
-    # ===========================================================================
-    # Rotas: CATEGORIA
-    #   - categorias/              : exibe página de listagem
-    #   - categorias/incluir/      : exibe a página de inclusao de registro
-    #   - categorias/alterar/<id>/ : exibe a página de alteracao de registro
-    #   - categorias/excluir/<id>/ : exibe a página de exclusao de registro
-    #   - categorias/salvar/       : insere, altera ou exclui um registro do BD
-    # 
-    path('categorias/', views.categorias, name='categorias'),
-    path('categorias/<str:acao>/', views.categorias, name='categorias' ), 
-    path('categorias/<str:acao>/<int:id>/', views.categorias, name='categorias'),
-
-    # ===========================================================================
-    # Rotas: PRODUTO
-    #   - produtos/              : exibe página de listagem
-    #   - produtos/incluir/      : exibe a página de inclusao de registro
-    #   - produtos/alterar/<id>/ : exibe a página de alteracao de registro
-    #   - produtos/excluir/<id>/ : exibe a página de exclusao de registro
-    #   - produtos/salvar/       : insere, altera ou exclui um registro do BD
-    # 
-    # 
-    path('produtos/', views.produtos, name='produtos'),
-    path('produtos/<str:acao>/', views.produtos, name='produtos' ), 
-    path('produtos/<str:acao>/<int:id>/', views.produtos, name='produtos'),
-
-] 
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / 'static')

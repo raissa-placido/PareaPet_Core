@@ -3,11 +3,12 @@
 {% block title %}Excluir pet | PareaPet{% endblock %}
 
 {% block content %}
-<section class="card">
-    <h1>Excluir pet</h1>
+<section class="card confirmation-card">
+    <div class="confirmation-icon" aria-hidden="true">!</div>
+    <h1>Excluir pet?</h1>
     <p class="subtitle">Esta ação não pode ser desfeita.</p>
     {% if ERRO %}<div class="error-message" role="alert">{{ ERRO }}</div>{% endif %}
-    <p>Deseja realmente excluir o pet <strong>{{ pet.nome }}</strong>?</p>
+    <p>Você está prestes a remover <strong>{{ pet.nome }}</strong> do cadastro de animais.</p>
     <div class="form-actions">
         <form method="post">
             {% csrf_token %}
