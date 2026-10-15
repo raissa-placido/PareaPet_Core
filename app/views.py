@@ -24,7 +24,7 @@ from core.domain.entities.enums import (
 ##### PET ####
 ##### PET ####
 
-def _repository():
+def _pet_repository():
     return ServicosFactory().obter_pet_repository()
 
 # retorna a enumeração equivalente ao código informado
@@ -75,13 +75,13 @@ def listar_pets(request):
         return render(
             request,
             "pets_listar.html",
-            {"registros": _repository().listar(), "ERRO": "Método inválido."},
+            {"registros": _pet_repository().listar(), "ERRO": "Método inválido."},
             status=405,
         )
     return render(
         request,
         "pets_listar.html",
-        {"registros": _repository().listar()},
+        {"registros": _pet_repository().listar()},
     )
 
 
@@ -89,7 +89,7 @@ def adicionar_pet(request):
     form = PetForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         try:
-            _repository().criar(_pet_from_form(form))
+            _pet_repository().criar(_pet_from_form(form))
             return HttpResponseRedirect(reverse("listar_pets"))
         except (TypeError, ValueError, ValidationError) as error:
             form.add_error(None, str(error))
@@ -107,7 +107,7 @@ def adicionar_pet(request):
 def alterar_pet(request, id):
 
     # busca do pet
-    repository = _repository()
+    repository = _pet_repository()
     pet = repository.buscar_id(id)
     if pet is None:
         return render(
@@ -147,7 +147,7 @@ def alterar_pet(request, id):
 
 
 def remover_pet(request, id):
-    repository = _repository()
+    repository = _pet_repository()
     pet = repository.buscar_id(id)
     if pet is None:
         return render(

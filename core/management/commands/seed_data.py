@@ -97,25 +97,80 @@ PETS = (
         "biografia": "Filhote curiosa e afetuosa.",
         "ong_index": 2,
     },
+    {
+        "nome": "Simba",
+        "especie": EspecieEnum.GATO.codigo,
+        "sexo": SexoAnimalEnum.MACHO.codigo,
+        "data_nascimento": date(2022, 9, 18),
+        "alocacao": AlocacaoEnum.NA_ONG.codigo,
+        "porte": PorteEnum.PEQUENO.codigo,
+        "moradia_recomendada": MoradiaEnum.APARTAMENTO.codigo,
+        "biografia": "Gato independente, tranquilo e carinhoso.",
+        "ong_index": 2,
+    },
+    {
+        "nome": "Amora",
+        "especie": EspecieEnum.CACHORRO.codigo,
+        "sexo": SexoAnimalEnum.FEMEA.codigo,
+        "data_nascimento": date(2021, 5, 26),
+        "alocacao": AlocacaoEnum.NO_LAR_TEMPORARIO.codigo,
+        "porte": PorteEnum.MEDIO.codigo,
+        "moradia_recomendada": MoradiaEnum.CASA.codigo,
+        "biografia": "Cadela alegre, dócil e cheia de energia.",
+        "ong_index": 0,
+    },
+    {
+        "nome": "Zeca",
+        "especie": EspecieEnum.CACHORRO.codigo,
+        "sexo": SexoAnimalEnum.MACHO.codigo,
+        "data_nascimento": date(2019, 7, 14),
+        "alocacao": AlocacaoEnum.NA_ONG.codigo,
+        "porte": PorteEnum.GRANDE.codigo,
+        "moradia_recomendada": MoradiaEnum.CASA.codigo,
+        "biografia": "Cachorro adulto, leal e muito companheiro.",
+        "ong_index": 1,
+    },
+    {
+        "nome": "Pipoca",
+        "especie": EspecieEnum.CACHORRO.codigo,
+        "sexo": SexoAnimalEnum.FEMEA.codigo,
+        "data_nascimento": date(2023, 10, 2),
+        "alocacao": AlocacaoEnum.NA_ONG.codigo,
+        "porte": PorteEnum.PEQUENO.codigo,
+        "moradia_recomendada": MoradiaEnum.APARTAMENTO.codigo,
+        "biografia": "Pequena, brincalhona e muito afetuosa.",
+        "ong_index": 1,
+    },
+    {
+        "nome": "Nino",
+        "especie": EspecieEnum.GATO.codigo,
+        "sexo": SexoAnimalEnum.MACHO.codigo,
+        "data_nascimento": date(2020, 3, 9),
+        "alocacao": AlocacaoEnum.NA_ONG.codigo,
+        "porte": PorteEnum.PEQUENO.codigo,
+        "moradia_recomendada": MoradiaEnum.APARTAMENTO.codigo,
+        "biografia": "Gato calmo, sociável e acostumado com pessoas.",
+        "ong_index": 2,
+    },
 )
 
 
 class Command(BaseCommand):
-    help = "Cria dados fictícios para desenvolvimento: 3 ONGs e 5 pets."
+    help = "Cria dados fictícios para desenvolvimento: 3 ONGs e 10 pets."
 
     def handle(self, *args, **options):
-        with transaction.atomic(using="db_solid"):
+        with transaction.atomic(using="default"):
             ongs = [self._create_ong(data) for data in ONGS]
             for pet_data in PETS:
                 self._create_pet(pet_data, ongs[pet_data["ong_index"]])
 
         self.stdout.write(
-            self.style.SUCCESS("Seed concluído: 3 ONGs e 5 pets disponíveis.")
+            self.style.SUCCESS("Seed concluído: 3 ONGs e 10 pets disponíveis.")
         )
 
     @staticmethod
     def _create_ong(data):
-        usuario, _ = UsuarioBase.objects.using("db_solid").get_or_create(
+        usuario, _ = UsuarioBase.objects.using("default").get_or_create(
             username=data["username"],
             defaults={
                 "email": data["email"],
@@ -126,9 +181,9 @@ class Command(BaseCommand):
         usuario.tipo_usuario = TipoUsuarioEnum.ONG.codigo
         usuario.set_unusable_password()
         usuario.full_clean()
-        usuario.save(using="db_solid")
+        usuario.save(using="default")
 
-        ong, _ = ONG.objects.using("db_solid").get_or_create(
+        ong, _ = ONG.objects.using("default").get_or_create(
             ong=usuario,
             defaults={
                 "cnpj": data["cnpj"],
@@ -142,7 +197,7 @@ class Command(BaseCommand):
         ong.descricao = data["descricao"]
         ong.pix_doacao = data["pix_doacao"]
         ong.full_clean()
-        ong.save(using="db_solid")
+        ong.save(using="default")
         return ong
 
     @staticmethod
@@ -150,7 +205,7 @@ class Command(BaseCommand):
         pet_data = {
             key: value for key, value in data.items() if key != "ong_index"
         }
-        pet, _ = Pet.objects.using("db_solid").get_or_create(
+        pet, _ = Pet.objects.using("default").get_or_create(
             ong=ong,
             nome=data["nome"],
             defaults=pet_data,
@@ -160,5 +215,5 @@ class Command(BaseCommand):
         pet.ong = ong
         pet.disponivel = True
         pet.full_clean()
-        pet.save(using="db_solid")
+        pet.save(using="default")
         return pet
