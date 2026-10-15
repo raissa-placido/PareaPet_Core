@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'core.UsuarioBase'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,10 +81,6 @@ WSGI_APPLICATION = 'pareapet.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db_solid.sqlite3",
-    },
-    "db_solid": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db_solid.sqlite3",
     },
@@ -135,3 +133,33 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+if os.name == 'nt':
+    NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+elif "microsoft" in os.uname().release.lower():
+    NPM_BIN_PATH = '/usr/bin/npm'
+else:
+    NPM_BIN_PATH = "npm"
+
+'''
+CSRF_TRUSTED_ORIGINS = []
+if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
+    CSRF_TRUSTED_ORIGINS.append(f'https://{os.environ["RENDER_EXTERNAL_HOSTNAME"]}')
+
+CSRF_TRUSTED_ORIGINS.extend([
+    'http://localhost:8000',
+    'https://localhost:8000',
+])
+'''
+
+LOGIN_REDIRECT_URL = '/pet/feed/'
+LOGIN_URL = 'login'
+
+if 'CODESPACE_NAME' in os.environ:
+    codespace_name = os.getenv("CODESPACE_NAME")
+    codespace_domain = os.getenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
+    CSRF_TRUSTED_ORIGINS = [f'https://{codespace_name}-8000.{codespace_domain}','https://localhost:8000']

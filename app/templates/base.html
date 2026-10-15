@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Parêa Pet{% endblock %}</title>
+    <style>
+        :root { color-scheme: light; --ink: #3c4531; --brand: #7ca255; --brand-dark: #587b3c; --paper: #f7f8f4; --line: #e4e9df; }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+        a { color: var(--brand-dark); }
+        .site-header { width: 100%; background: #fefdfd; box-shadow: 0 4px 18px #263b3810; }
+        .header-inner, main, .footer-inner { width: min(1180px, calc(100% - 40px)); margin: auto; }
+        .header-inner { min-height: 92px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+        .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 1.35rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+        .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: #dce9d1; color: var(--brand-dark); }
+        .brand-mark svg { width: 25px; height: 25px; }
+        .header-nav { display: flex; align-items: center; gap: clamp(14px, 3vw, 34px); }
+        .header-nav a { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 650; text-decoration: none; transition: color .2s ease; }
+        .header-nav a:hover, .header-nav a[aria-current="page"] { color: var(--brand-dark); }
+        .nav-icon { width: 20px; height: 20px; color: var(--brand); }
+        main { flex: 1; padding: 36px 0 64px; }
+        h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.3rem); }
+        h2 { margin-top: 0; }
+        .muted { color: #64736e; }
+        .card { background: white; border: 1px solid var(--line); border-radius: 18px; padding: clamp(20px, 4vw, 32px); box-shadow: 0 8px 28px #263b380b; }
+        .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
+        .button { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; padding: 10px 16px; background: var(--brand); color: white; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .button:hover { background: var(--brand-dark); }
+        .button.secondary { background: #e9eee9; color: var(--ink); }
+        .button.danger { background: #a5362b; }
+        .messages { list-style: none; padding: 0; }
+        .messages li { padding: 12px 16px; margin: 10px 0; border-radius: 10px; background: #e7f3e8; }
+        .messages li.error { background: #fff0ed; color: #8c281e; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 13px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+        th { color: #52625c; font-size: .9rem; }
+        .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { font-weight: 700; }
+        input, textarea, select { width: 100%; border: 1px solid #cbd4cd; border-radius: 9px; padding: 11px 12px; background: white; color: var(--ink); font: inherit; }
+        input:focus, textarea:focus, select:focus { outline: 3px solid #7ca25530; border-color: var(--brand); }
+        .errorlist, .field-error { margin: 0; color: #a12d22; }
+        dl { display: grid; grid-template-columns: minmax(130px, 1fr) 2fr; gap: 12px; }
+        dt { font-weight: 750; }
+        dd { margin: 0; overflow-wrap: anywhere; }
+        .site-footer { position: relative; overflow: hidden; background: #7da252; color: white; }
+        .site-footer::before, .site-footer::after { position: absolute; right: 8%; bottom: -130px; width: 310px; height: 310px; border: 1px solid #ffffff35; border-radius: 50%; content: ""; pointer-events: none; }
+        .site-footer::after { right: 12%; bottom: -88px; width: 220px; height: 220px; }
+        .footer-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1.3fr .7fr; gap: 48px; padding-top: 52px; padding-bottom: 38px; }
+        .footer-brand { color: white; font-size: 1.5rem; }
+        .footer-brand .brand-mark { background: #dce9d1; }
+        .footer-copy { max-width: 360px; margin: 16px 0 0; color: #f4f8ed; font-size: 1.1rem; }
+        .footer-nav h2 { margin: 0 0 14px; font-size: 1.15rem; }
+        .footer-nav ul { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+        .footer-nav a { color: white; text-decoration: none; }
+        .footer-nav a:hover { text-decoration: underline; }
+        .back-top { display: inline-flex; align-items: center; gap: 12px; margin-top: 22px; padding: 9px 18px; border: 0; border-radius: 999px; background: #b6d494; color: white; font: inherit; font-weight: 650; cursor: pointer; }
+        .back-top:hover { background: #a3c77b; }
+        .footer-bottom { position: relative; z-index: 1; padding: 14px 20px; border-top: 1px solid #ffffff35; color: #f4f8ed; text-align: center; font-size: .9rem; }
+        @media (max-width: 720px) {
+            .header-inner { min-height: 76px; flex-wrap: wrap; justify-content: center; padding: 14px 0; }
+            .header-nav { width: 100%; justify-content: center; flex-wrap: wrap; gap: 12px 22px; }
+            .footer-inner { grid-template-columns: 1fr; gap: 30px; padding-top: 38px; }
+        }
+        @media (max-width: 520px) {
+            .header-inner, main, .footer-inner { width: min(100% - 28px, 1180px); }
+            .header-nav a { font-size: .92rem; }
+            .field-grid { grid-template-columns: 1fr; }
+            .field.full { grid-column: auto; }
+            dl { grid-template-columns: 1fr; gap: 4px; }
+            dd { margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="{% url 'home' %}" aria-label="Parêa Pet, página inicial">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10Z"/><circle cx="8" cy="11" r=".6" fill="currentColor"/><circle cx="12" cy="10" r=".6" fill="currentColor"/><circle cx="16" cy="11" r=".6" fill="currentColor"/></svg>
+                </span>
+                <span>Parêa Pet</span>
+            </a>
+            <nav class="header-nav" aria-label="Navegação principal">
+                <a href="{% url 'home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+                    <span>Início</span>
+                </a>
+                <a href="{% url 'ongs_listar' %}"{% if request.resolver_match.url_name == 'ongs_listar' %} aria-current="page"{% endif %}>
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></svg>
+                    <span>Organizações</span>
+                </a>
+                <a href="{% url 'ongs_criar' %}">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>Cadastrar ONG</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <section aria-label="Sobre o Parêa Pet">
+                <a class="brand footer-brand" href="{% url 'home' %}">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.3-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.7-7 10-7 10Z"/><circle cx="8" cy="11" r=".6" fill="currentColor"/><circle cx="12" cy="10" r=".6" fill="currentColor"/><circle cx="16" cy="11" r=".6" fill="currentColor"/></svg>
+                    </span>
+                    <span>Parêa Pet</span>
+                </a>
+                <p class="footer-copy">Conectando você ao seu companheiro ideal!</p>
+            </section>
+            <nav class="footer-nav" aria-label="Navegação do rodapé">
+                <h2>Mapa do site</h2>
+                <ul>
+                    <li><a href="{% url 'home' %}">Início</a></li>
+                    <li><a href="{% url 'ongs_listar' %}">Organizações</a></li>
+                    <li><a href="{% url 'ongs_criar' %}">Cadastrar ONG</a></li>
+                </ul>
+                <button class="back-top" type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+                    <span>Voltar ao topo</span><span aria-hidden="true">↑</span>
+                </button>
+            </nav>
+        </div>
+        <div class="footer-bottom">Parêa Pet · Cuidado e adoção responsável</div>
+    </footer>
+</body>
+</html>

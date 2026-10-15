@@ -101,6 +101,9 @@ class AdotanteRepository(IRepository):
     def buscar_id(self, id: int) -> Adotante | None:
         return self.adotante_dao.buscar_id(id)
 
+    def buscar_email(self, email: str) -> Adotante | None:
+        return self.adotante_dao.buscar_email(email)
+
     def listar(self) -> list[Adotante]:
         return self.adotante_dao.listar()
 
