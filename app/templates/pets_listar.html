@@ -1,0 +1,72 @@
+{% extends "pets_base.html" %}
+
+{% block title %}Pets | PareaPet{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">PAINEL DE ADOÇÃO</p>
+        <h1>Encontre um novo companheiro</h1>
+        <p class="subtitle">Gerencie os animais cadastrados pelas ONGs parceiras.</p>
+    </div>
+    <a class="button" href="{% url 'adicionar_pet' %}"><span aria-hidden="true">+</span> Cadastrar pet</a>
+</div>
+
+{% if ERRO %}
+    <div class="error-message" role="alert">{{ ERRO }}</div>
+{% endif %}
+
+{% if registros %}
+<div class="summary-grid" aria-label="Resumo dos pets">
+    <div class="summary-card">
+        <span class="summary-icon">🐶</span>
+        <div><strong>{{ registros|length }}</strong><span>pets cadastrados</span></div>
+    </div>
+    <div class="summary-card">
+        <span class="summary-icon">💚</span>
+        <div><strong>Adoção</strong><span>responsável e cuidadosa</span></div>
+    </div>
+</div>
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Pet</th>
+                <th>Espécie</th>
+                <th>ONG responsável</th>
+                <th>Alocação</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for pet in registros %}
+            <tr>
+                <td class="pet-name"><span class="pet-avatar">{{ pet.nome|first|upper }}</span>{{ pet.nome }}</td>
+                <td>{{ pet.especie.descricao }}</td>
+                <td>{{ pet.ong.razao_social }}</td>
+                <td>{{ pet.alocacao.descricao }}</td>
+                <td>
+                    {% if pet.disponivel %}
+                        <span class="status">Disponível</span>
+                    {% else %}
+                        <span class="status unavailable">Indisponível</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="{% url 'alterar_pet' pet.id %}">Alterar</a>
+                    <a href="{% url 'remover_pet' pet.id %}">Excluir</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<section class="card empty-state">
+    <h2>Nenhum pet cadastrado</h2>
+    <p>Comece cadastrando o primeiro animal.</p>
+    <a class="button" href="{% url 'adicionar_pet' %}">Cadastrar primeiro pet</a>
+</section>
+{% endif %}
+{% endblock %}

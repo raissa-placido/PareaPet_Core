@@ -163,7 +163,7 @@ class PetDAO_ORM(_BaseDAO, ICrudDAO):
         ong = ONGModel.objects.using(self._db).get(pk=novos_dados.ong.id)
         atualizado = self._para_modelo(novos_dados, ong)
         atualizado.pk = registro.pk
-        atualizado.full_clean()
+        atualizado.full_clean(exclude=["id"])
         atualizado.save(using=self._db)
         novos_dados.id = atualizado.pk
         return novos_dados

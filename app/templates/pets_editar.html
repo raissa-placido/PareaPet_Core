@@ -1,0 +1,35 @@
+{% extends "pets_base.html" %}
+
+{% block title %}{{ acao }} pet | PareaPet{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h1>{{ acao }} pet</h1>
+            <p class="subtitle">Preencha os dados do animal para mantê-lo visível para adoção.</p>
+        </div>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="error-message" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post" action="{% if pet_id %}{% url 'alterar_pet' pet_id %}{% else %}{% url 'adicionar_pet' %}{% endif %}">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="field {% if field.name == 'biografia' %}full-width{% endif %} {% if field.field.widget.input_type == 'checkbox' %}checkbox-field{% endif %}">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-actions">
+            <button type="submit">Salvar pet</button>
+            <a class="button secondary" href="{% url 'listar_pets' %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

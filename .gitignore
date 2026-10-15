@@ -10,3 +10,5 @@ pareapet.sqlite3
 
 .DS_Store
 *.asta.lock
+
+node_modules/
