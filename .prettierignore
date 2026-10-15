@@ -1,0 +1,3 @@
+# Django templates contain `{% ... %}` and `{{ ... }}` tags. Prettier's generic HTML
+# formatter can split the delimiters across lines and make Django templates invalid.
+app/templates/**/*.html

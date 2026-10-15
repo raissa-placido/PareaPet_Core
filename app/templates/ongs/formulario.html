@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo }} | Parêa Pet{% endblock %}
+{% block content %}
+<style>
+  .ong-form-shell {
+    display: grid;
+    grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.5fr);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e4e6df;
+    border-radius: 24px;
+    box-shadow: 0 16px 48px #263b3812;
+  }
+  .ong-form-aside {
+    position: relative;
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 34px;
+    overflow: hidden;
+    background: #7ca255;
+    color: white;
+  }
+  .ong-form-aside::after {
+    position: absolute;
+    right: -78px;
+    bottom: -96px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid #ffffff50;
+    border-radius: 50%;
+    content: "";
+  }
+  .ong-form-aside::before {
+    position: absolute;
+    right: -26px;
+    bottom: -46px;
+    width: 160px;
+    height: 160px;
+    border: 1px solid #ffffff50;
+    border-radius: 50%;
+    content: "";
+  }
+  .ong-form-aside > * {
+    position: relative;
+    z-index: 1;
+  }
+  .ong-form-aside h2 {
+    margin: 42px 0 12px;
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+  .ong-form-aside p {
+    color: #f4f8ed;
+  }
+  .ong-form-aside .aside-tag {
+    width: fit-content;
+    padding: 7px 12px;
+    border: 1px solid #ffffff70;
+    border-radius: 999px;
+    font-size: 0.85rem;
+  }
+  .ong-form-main {
+    padding: clamp(22px, 4vw, 44px);
+  }
+  .ong-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    color: #64736e;
+    font-size: 0.9rem;
+  }
+  .ong-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ong-breadcrumb strong {
+    color: #3c4531;
+  }
+  .ong-form-main h1 {
+    color: #7ca255;
+  }
+  .ong-form-main .form-intro {
+    margin: 0 0 28px;
+    color: #64736e;
+  }
+  .ong-form-main h3 {
+    margin: 28px 0 16px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #e7eae4;
+    color: #3c4531;
+    font-size: 1.08rem;
+  }
+  .ong-form-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px 20px;
+  }
+  .ong-form-fields .field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .ong-form-fields .field.full {
+    grid-column: 1 / -1;
+  }
+  .ong-form-fields label {
+    color: #3c4531;
+    font-weight: 650;
+  }
+  .ong-form-fields input,
+  .ong-form-fields textarea,
+  .ong-form-fields select {
+    border-color: #a9c789;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .ong-form-fields input:focus,
+  .ong-form-fields textarea:focus,
+  .ong-form-fields select:focus {
+    outline: 3px solid #7ca25530;
+    border-color: #7ca255;
+  }
+  .ong-form-fields .errorlist {
+    padding-left: 18px;
+    color: #a12d22;
+    font-size: 0.9rem;
+  }
+  .ong-form-errors {
+    margin: 0 0 18px;
+    padding: 13px 16px;
+    border: 1px solid #f0b8b2;
+    border-radius: 12px;
+    background: #fff0ed;
+    color: #8c281e;
+  }
+  .ong-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 1px solid #e7eae4;
+  }
+  .ong-form-actions .button {
+    padding: 11px 22px;
+    border-radius: 12px;
+  }
+  .ong-form-actions .button:not(.secondary) {
+    background: #7ca255;
+  }
+  .ong-form-actions .button:not(.secondary):hover {
+    background: #6a8f49;
+  }
+  .ong-form-actions .button.secondary {
+    border: 1px solid #7ca255;
+    background: white;
+    color: #66804a;
+  }
+  @media (max-width: 760px) {
+    .ong-form-shell {
+      grid-template-columns: 1fr;
+    }
+    .ong-form-aside {
+      min-height: 210px;
+      padding: 24px;
+    }
+    .ong-form-aside h2 {
+      margin: 24px 0 8px;
+      font-size: 1.65rem;
+    }
+  }
+  @media (max-width: 520px) {
+    .ong-form-fields {
+      grid-template-columns: 1fr;
+    }
+    .ong-form-fields .field.full {
+      grid-column: auto;
+    }
+  }
+</style>
+
+<p style="margin: 0 0 16px">
+  <a href="{% url 'ongs_listar' %}">← Voltar para a lista de ONGs</a>
+</p>
+<section class="ong-form-shell">
+  <aside class="ong-form-aside">
+    <span class="aside-tag">Parêa Pet · Área de organizações</span>
+    <div>
+      <h2>Uma rede de cuidado começa por aqui.</h2>
+      <p>
+        Informe os dados da organização para manter o cadastro da ONG completo e
+        atualizado.
+      </p>
+    </div>
+    <small>Juntos, ampliamos as oportunidades de adoção responsável.</small>
+  </aside>
+
+  <div class="ong-form-main">
+    <div class="ong-breadcrumb">
+      <a href="{% url 'home' %}">Início</a><span aria-hidden="true">›</span>
+      <a href="{% url 'ongs_listar' %}">ONGs</a
+      ><span aria-hidden="true">›</span>
+      <strong>{{ titulo }}</strong>
+    </div>
+
+    <h1>{{ titulo }}</h1>
+    <p class="form-intro">
+      CNPJ, razão social e e-mail são obrigatórios; a senha também é obrigatória
+      no cadastro. Endereço é opcional, mas, se informado, preencha rua, número
+      e bairro.
+    </p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="ong-form-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <h3>Dados da organização</h3>
+      <div class="ong-form-fields">
+        <div class="field">
+          {{ form.razao_social.label_tag }}
+          {{ form.razao_social }}
+          {{ form.razao_social.errors }}
+        </div>
+        <div class="field">
+          {{ form.cnpj.label_tag }}
+          {{ form.cnpj }}
+          {{ form.cnpj.errors }}
+        </div>
+        <div class="field">
+          {{ form.email.label_tag }}
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+        <div class="field">
+          {{ form.senha.label_tag }}
+          {{ form.senha }}
+          {{ form.senha.errors }}
+          {% if ong %}
+          <small class="muted"
+            >Deixe em branco para manter a senha atual.</small
+          >
+          {% else %}
+          <small class="muted">Necessária para criar o acesso da ONG.</small>
+          {% endif %}
+        </div>
+        <div class="field">
+          {{ form.pix_para_doacao.label_tag }}
+          {{ form.pix_para_doacao }}
+          {{ form.pix_para_doacao.errors }}
+        </div>
+        <div class="field full">
+          {{ form.descricao.label_tag }}
+          {{ form.descricao }}
+          {{ form.descricao.errors }}
+        </div>
+      </div>
+
+      <h3>Endereço e contato</h3>
+      <div class="ong-form-fields">
+        <div class="field">
+          {{ form.cep.label_tag }}
+          {{ form.cep }}
+          {{ form.cep.errors }}
+        </div>
+        <div class="field">
+          {{ form.telefone.label_tag }}
+          {{ form.telefone }}
+          {{ form.telefone.errors }}
+        </div>
+        <div class="field">
+          {{ form.rua.label_tag }}
+          {{ form.rua }}
+          {{ form.rua.errors }}
+        </div>
+        <div class="field">
+          {{ form.numero.label_tag }}
+          {{ form.numero }}
+          {{ form.numero.errors }}
+        </div>
+        <div class="field">
+          {{ form.bairro.label_tag }}
+          {{ form.bairro }}
+          {{ form.bairro.errors }}
+        </div>
+        <div class="field">
+          {{ form.cidade.label_tag }}
+          {{ form.cidade }}
+          {{ form.cidade.errors }}
+        </div>
+        <div class="field">
+          {{ form.estado.label_tag }}
+          {{ form.estado }}
+          {{ form.estado.errors }}
+        </div>
+      </div>
+
+      <div class="ong-form-actions">
+        <a class="button secondary" href="{% url 'ongs_listar' %}">Cancelar</a>
+        <button class="button" type="submit">Salvar cadastro</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

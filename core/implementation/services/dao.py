@@ -1,4 +1,5 @@
 from django.db import connections, transaction
+from django.conf import settings
 
 from core.domain.entities.dominio import Adotante as AdotanteDomain
 from core.domain.entities.dominio import ONG as ONGDomain
@@ -35,13 +36,18 @@ class ConexaoBD_ORM:
 
     def obter_conexao(self):
         if self.DB_ALIAS not in connections.databases:
-            connections.databases[self.DB_ALIAS] = {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": "db_solid.sqlite3",
-                "TIME_ZONE": "America/Fortaleza",
-                "CONN_MAX_AGE": 60,
-                "AUTOCOMMIT": True,
-            }
+            configuracao = connections.databases["default"].copy()
+            configuracao.update(
+                {
+                    "ENGINE": "django.db.backends.sqlite3",
+                    "NAME": settings.BASE_DIR / "db_solid.sqlite3",
+                    "TIME_ZONE": "America/Fortaleza",
+                    "CONN_MAX_AGE": 60,
+                    "AUTOCOMMIT": True,
+                    "ATOMIC_REQUESTS": False,
+                }
+            )
+            connections.databases[self.DB_ALIAS] = configuracao
         return connections[self.DB_ALIAS]
 
 

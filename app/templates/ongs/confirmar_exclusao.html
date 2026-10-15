@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Excluir ONG | Parêa Pet{% endblock %}
+{% block content %}
+<p>
+  <a href="{% url 'ongs_detalhe' ong_id=ong.id %}"
+    >← Voltar para os dados da ONG</a
+  >
+</p>
+<section class="card">
+  <h1>Excluir organização?</h1>
+  <p>
+    Confirma a exclusão de <strong>{{ ong.razao_social }}</strong> (CNPJ {{
+    ong.cnpj }})?
+  </p>
+  {% if ong.pets %}
+  <p class="muted">
+    Esta ONG possui {{ ong.pets|length }} animal(is). O sistema pode impedir a
+    exclusão enquanto houver animais associados.
+  </p>
+  {% endif %}
+  <p>Esta ação não pode ser desfeita.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="actions">
+      <button class="button danger" type="submit">Confirmar exclusão</button>
+      <a class="button secondary" href="{% url 'ongs_detalhe' ong_id=ong.id %}"
+        >Cancelar</a
+      >
+    </div>
+  </form>
+</section>
+{% endblock %}
