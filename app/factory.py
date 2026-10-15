@@ -9,6 +9,7 @@ from core.implementation.services.repository import (
     OngRepository,
     PetRepository,
 )
+from core.implementation.services.adotante_service import AdotanteService
 
 
 class ServicosFactory:
@@ -33,3 +34,6 @@ class ServicosFactory:
 
     def obter_adotante_repository(self):
         return AdotanteRepository(self.obter_adotante_dao())
+
+    def obter_adotante_service(self):
+        return AdotanteService(self.obter_adotante_repository())

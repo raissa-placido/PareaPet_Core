@@ -1,0 +1,18 @@
+{% extends "adotante/base.html" %}
+{% block title %}Excluir conta | Parêa Pet{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-xl rounded-3xl bg-white p-7 shadow-sm sm:p-10">
+    <a href="{% url 'usuario_pp:perfil_usuario' %}" class="font-semibold text-[#557a3c] underline">← Voltar ao perfil</a>
+    <div class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6">
+        <p class="font-bold uppercase tracking-widest text-red-700">Atenção</p>
+        <h1 class="mt-2 text-3xl font-extrabold text-red-900">Excluir sua conta?</h1>
+        <p class="mt-4 leading-7 text-red-900">Essa ação é permanente. Seu perfil de adotante e os dados associados serão removidos.</p>
+        {% if erro %}<p role="alert" class="mt-4 font-semibold text-red-800">{{ erro }}</p>{% endif %}
+    </div>
+    <form method="post" action="{% url 'usuario_pp:excluir_adotante' %}" class="mt-6 flex flex-wrap justify-end gap-3">
+        {% csrf_token %}
+        <a href="{% url 'usuario_pp:perfil_usuario' %}" class="rounded-xl border border-[#64884a] px-5 py-3 font-bold text-[#557a3c]">Manter minha conta</a>
+        <button type="submit" class="rounded-xl bg-red-700 px-5 py-3 font-bold text-white hover:bg-red-800">Excluir conta</button>
+    </form>
+</section>
+{% endblock %}

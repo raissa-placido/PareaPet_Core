@@ -1,0 +1,41 @@
+{% extends "adotante/base.html" %}
+{% block title %}Meu perfil | Parêa Pet{% endblock %}
+{% block content %}
+<section class="rounded-3xl bg-white p-7 shadow-sm sm:p-10">
+    <div class="flex flex-wrap items-start justify-between gap-5">
+        <div>
+            <p class="font-bold uppercase tracking-widest text-[#64884a]">Área do adotante</p>
+            <h1 class="mt-2 text-3xl font-extrabold text-[#34482c]">Olá, {{ adotante.nome|default:adotante.email }}</h1>
+            <p class="mt-2 text-[#62705e]">Aqui você pode revisar e atualizar seus dados.</p>
+        </div>
+        <a href="{% url 'usuario_pp:alterar_cadastro' %}" class="rounded-xl bg-[#64884a] px-5 py-3 font-bold text-white hover:bg-[#4f7038]">Alterar dados</a>
+    </div>
+    <dl class="mt-8 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">Nome</dt><dd class="mt-1 font-bold">{{ adotante.nome|default:"Não informado" }}</dd></div>
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">E-mail</dt><dd class="mt-1 font-bold">{{ adotante.email }}</dd></div>
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">CPF</dt><dd class="mt-1 font-bold">{{ adotante.cpf|default:"Não informado" }}</dd></div>
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">Nascimento</dt><dd class="mt-1 font-bold">{{ adotante.data_nascimento|date:"d/m/Y"|default:"Não informado" }}</dd></div>
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">Telefone</dt><dd class="mt-1 font-bold">{{ adotante.telefone|default:"Não informado" }}</dd></div>
+        <div class="rounded-xl bg-[#f6f8f3] p-4"><dt class="text-sm font-semibold text-[#62705e]">Cidade</dt><dd class="mt-1 font-bold">{{ adotante.cidade|default:"Não informada" }}</dd></div>
+    </dl>
+    {% if respostas_questionario %}
+        <section class="mt-8 border-t border-[#e1e8da] pt-6">
+            <h2 class="text-xl font-bold">Preferências de adoção</h2>
+            <ul class="mt-3 flex flex-wrap gap-2">
+                {% for pergunta, respostas in respostas_questionario.items %}
+                    {% for resposta in respostas %}
+                        <li class="rounded-full bg-[#e8f0df] px-4 py-2 text-sm font-semibold text-[#405638]">{{ resposta }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+            <a href="{% url 'usuario_pp:questionario_adotante' %}" class="mt-4 inline-block font-bold text-[#557a3c] underline">Atualizar questionário</a>
+        </section>
+    {% else %}
+        <p class="mt-8 rounded-xl bg-[#f6f8f3] p-4 text-[#62705e]">Você ainda não respondeu ao questionário. <a href="{% url 'usuario_pp:questionario_adotante' %}" class="font-bold text-[#557a3c] underline">Responder agora</a></p>
+    {% endif %}
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[#e1e8da] pt-6">
+        <a href="{% url 'usuario_pp:logout' %}" class="font-semibold text-[#405638] underline">Sair da conta</a>
+        <a href="{% url 'usuario_pp:excluir_adotante' %}" class="font-semibold text-red-700 underline">Excluir minha conta</a>
+    </div>
+</section>
+{% endblock %}

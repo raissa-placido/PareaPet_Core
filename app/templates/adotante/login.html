@@ -1,0 +1,22 @@
+{% extends "adotante/base.html" %}
+{% block title %}Entrar | Parêa Pet{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-md rounded-3xl bg-white p-7 shadow-sm sm:p-10">
+    <p class="font-bold uppercase tracking-widest text-[#64884a]">Bem-vindo de volta</p>
+    <h1 class="mt-2 text-3xl font-extrabold text-[#34482c]">Entrar na sua conta</h1>
+    {% if erro %}<div role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800">{{ erro }}</div>{% endif %}
+    <form method="post" action="{% url 'usuario_pp:login' %}" class="mt-7 space-y-5">
+        {% csrf_token %}
+        <div>
+            <label for="email" class="mb-2 block font-semibold">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" required value="{{ request.POST.email }}" class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3 outline-none focus:border-[#64884a] focus:ring-2 focus:ring-[#64884a]/20">
+        </div>
+        <div>
+            <label for="senha" class="mb-2 block font-semibold">Senha</label>
+            <input id="senha" name="senha" type="password" autocomplete="current-password" required class="w-full rounded-xl border border-[#cbd7c3] px-4 py-3 outline-none focus:border-[#64884a] focus:ring-2 focus:ring-[#64884a]/20">
+        </div>
+        <button type="submit" class="w-full rounded-xl bg-[#64884a] px-5 py-3 font-bold text-white hover:bg-[#4f7038]">Entrar</button>
+    </form>
+    <p class="mt-6 text-center text-[#62705e]">Ainda não tem conta? <a href="{% url 'usuario_pp:PreCadastro' %}" class="font-bold text-[#557a3c] underline">Cadastre-se</a></p>
+</section>
+{% endblock %}
